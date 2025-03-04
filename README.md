@@ -203,13 +203,23 @@ The path to your local output folder:
 [View the prompts in a web GUI](https://vouchervision-go-XXXXXX.app/prompts-ui)
 
 ### List all prompts
-curl https://vouchervision-go-XXXXXX.app/prompts
+First row linux/Mac, second row Windows
+```bash
+curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text"
+(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text").Content
+```
 
 ### View a specific prompt
-curl https://vouchervision-go-XXXXXX.app/prompts?prompt=SLTPvM_default.yaml
+```bash
+curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text"
+(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text").Content
+```
 
-### List all prompts with their full content
-curl https://vouchervision-go-XXXXXX.app/prompts?view=true
+### Getting a specific prompt in JSON format (default)
+```bash
+curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml"
+(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml").Content
+```
 
 
 ## Example Calls
