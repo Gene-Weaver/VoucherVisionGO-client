@@ -33,6 +33,9 @@ pip install vouchervision-go-client
 ### Option 2: Using pip (Install from source locally)
 
 ```bash
+# Clone
+git clone https://github.com/Gene-Weaver/VoucherVisionGO-client.git
+cd VoucherVisionGO-client
 # Create a virtual environment
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -43,7 +46,10 @@ pip install -r requirements.txt
 
 ### Option 3: Using conda (Install from source locally)
 ```bash
-# Create a conda environment
+# Clone
+git clone https://github.com/Gene-Weaver/VoucherVisionGO-client.git
+cd VoucherVisionGO-client
+# Create a virtual environment
 conda create -n vvgo-client python=3.10
 conda activate vvgo-client
 
