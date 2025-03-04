@@ -4,13 +4,10 @@ This repository contains only the client component of [VoucherVisionGO](https://
 
 ## About
 
-This is a mirror of the `client.py` file from the main VoucherVisionGO repository. It is automatically synchronized when the original file is updated.
+The client.py file is automatically synchronized from the main VoucherVisionGO repository.
 
-## Purpose
-
-This repository is designed for users who only need the client component without the full VoucherVisionGO codebase, allowing for:
-- Easier integration into existing projects
-- Smaller footprint
-- Focused functionality
+Last synchronized: Tue Mar  4 16:46:52 UTC 2025
 
 ## Usage
+
+Please refer to the [main repository](https://github.com/Gene-Weaver/VoucherVisionGO) for complete documentation.
