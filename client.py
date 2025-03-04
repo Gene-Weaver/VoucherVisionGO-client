@@ -704,7 +704,7 @@ if __name__ == "__main__":
 # python client.py --server https://vouchervision-go-XXXXXX.app --directory ./demo/images --output-dir "./demo/results_dir_images_save_to_csv" --save-to-csv
 
 ### Programmatic Example
-''''''
+'''
 from client import process_vouchers
 
 if __name__ == '__main__':
@@ -726,4 +726,4 @@ file_list=None,
 verbose=True, 
 save_to_csv=True, 
 max_workers=4)
-''''''
+'''
