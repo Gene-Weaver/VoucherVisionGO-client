@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.1",
+    version="0.1.2",
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
@@ -24,11 +24,14 @@ setup(
     python_requires=">=3.10",
     install_requires=[
         "requests",
-        "pandas",
         "termcolor",
         "tabulate",
         "tqdm",
     ],
+    extras_require={
+        "analytics": ["pandas"],
+        "full": ["pandas"],
+    },
     entry_points={
         "console_scripts": [
             "vouchervision=client:main",  # Changed to point to client.py in root
