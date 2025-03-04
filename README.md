@@ -33,8 +33,15 @@ Choose one of the following installation methods:
 
 ### Option 1: Install in your own Python environment from the [PyPi repo](https://pypi.org/project/vouchervision-go-client/)
 
+Install
 ```bash
 pip install vouchervision-go-client
+```
+
+Upgrade
+```bash
+pip install --upgrade vouchervision-go-client
+
 ```
 
 ### Option 2: Using pip (Install from source locally)
