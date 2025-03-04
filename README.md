@@ -84,6 +84,20 @@ The path to your local output folder:
 * `--save-to-csv`: Save all results to a CSV file in the output directory.
 * `--max-workers`: Maximum number of parallel workers. If you are processing 100s/1,000s of images increase this to 8, 16, or 32. Otherwise just skip this and let it use default values. (default: 4, max: 32)
 
+## View Available Prompts
+
+[View the prompts in a web GUI](https://vouchervision-go-XXXXXX.app/prompts-ui)
+
+### List all prompts
+curl https://vouchervision-go-XXXXXX.app/prompts
+
+### View a specific prompt
+curl https://vouchervision-go-XXXXXX.app/prompts?prompt=SLTPvM_default.yaml
+
+### List all prompts with their full content
+curl https://vouchervision-go-XXXXXX.app/prompts?view=true
+
+
 ## Example Calls
 
 #### Processing a Single Local Image
