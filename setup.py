@@ -1,10 +1,3 @@
-'''
-# increment the version
-python -m build
-python -m twine upload dist/* --verbose
-user login stuff is in the .pypirc
-'''
-
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -12,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.24",
+    version="0.1.25",  # Incremented version
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
@@ -27,13 +20,14 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    py_modules=["client"],  # Use py_modules for single file modules
+    py_modules=["client", "list_prompts"],  # Added list_prompts.py
     python_requires=">=3.10",
     install_requires=[
         "requests",
         "termcolor",
         "tabulate",
         "tqdm",
+        "pyyaml",  # Added for list_prompts.py
     ],
     extras_require={
         "analytics": ["pandas"],
@@ -41,7 +35,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "vouchervision=client:main",  # Changed to point to client.py in root
+            "vouchervision=client:main",  # Original client entry point
+            "vv-prompts=list_prompts:main",  # New entry point for list_prompts
         ],
     },
 )
