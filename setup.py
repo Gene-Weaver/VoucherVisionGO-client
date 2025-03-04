@@ -1,3 +1,10 @@
+'''
+# increment the version
+python -m build
+python -m twine upload dist/* --verbose
+user login stuff is in the .pypirc
+'''
+
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
