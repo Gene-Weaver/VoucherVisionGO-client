@@ -228,10 +228,12 @@ if __name__ == '__main__':
     engines= ["gemini-1.5-pro", "gemini-2.0-flash"],
     prompt="SLTPvM_default_chromosome.yaml") 
   # Convert to JSON string
-  json_str = ordereddict_to_json(result)
-    
-  # Print or save the JSON
-  print(json_str)
+  output_str = ordereddict_to_json(result, output_type="json")
+  print(output_str)
+
+  # Or keep it as a python dict
+  output_dict = ordereddict_to_json(result, output_type="dict")
+  print(output_dict)
 ```
 
 ## Contributing
