@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.21",
+    version="0.1.22",
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
