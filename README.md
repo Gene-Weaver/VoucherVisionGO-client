@@ -217,17 +217,21 @@ if __name__ == '__main__':
 To get the JSON packet for a single specimen record:
 
 ```python
-from client import process_image
+from client import process_image, ordereddict_to_json
 
 if __name__ == '__main__':
-  json_packet = process_image(
+  result = process_image(
     server_url="https://vouchervision-go-XXXXXX.app", 
     image_path="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
     output_dir="./output", 
     verbose=True, 
     engines= ["gemini-1.5-pro", "gemini-2.0-flash"],
     prompt="SLTPvM_default_chromosome.yaml") 
-  print(json_packet)
+  # Convert to JSON string
+  json_str = ordereddict_to_json(result)
+    
+  # Print or save the JSON
+  print(json_str)
 ```
 
 ## Contributing
