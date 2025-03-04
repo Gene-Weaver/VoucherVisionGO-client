@@ -217,23 +217,28 @@ if __name__ == '__main__':
 To get the JSON packet for a single specimen record:
 
 ```python
-from client import process_image, ordereddict_to_json
+import os
+from client import process_image, ordereddict_to_json, get_output_filename
 
 if __name__ == '__main__':
-  result = process_image(
-    server_url="https://vouchervision-go-XXXXXX.app", 
-    image_path="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
-    output_dir="./output", 
-    verbose=True, 
-    engines= ["gemini-1.5-pro", "gemini-2.0-flash"],
-    prompt="SLTPvM_default_chromosome.yaml") 
-  # Convert to JSON string
-  output_str = ordereddict_to_json(result, output_type="json")
-  print(output_str)
+	image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
+	output_dir = "./output"
+	output_file = get_output_filename(image_path, output_dir)
+	fname = os.path.basename(output_file).split(".")[0]
 
-  # Or keep it as a python dict
-  output_dict = ordereddict_to_json(result, output_type="dict")
-  print(output_dict)
+	result = process_image(fname=fname,
+    server_url="https://vouchervision-go-XXXXXX.app", 
+    image_path=image_path, 
+    output_dir=output_dir, 
+    verbose=True, 
+    engines= ["gemini-2.0-flash"],
+    prompt="SLTPvM_default_chromosome.yaml")
+	# Convert to JSON string
+	output_str = ordereddict_to_json(result, output_type="json")
+	print(output_str)
+	# Or keep it as a python dict
+	output_dict = ordereddict_to_json(result, output_type="dict")
+	print(output_dict)
 ```
 
 ## Contributing
