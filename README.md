@@ -24,7 +24,13 @@ This repository is designed for users who only need the client component without
 
 Choose one of the following installation methods:
 
-### Option 1: Using pip
+### Option 1: Install in your own Python environment from the [PyPi repo](https://pypi.org/project/vouchervision-go-client/)
+
+```bash
+pip install vouchervision-go-client
+```
+
+### Option 2: Using pip (Install from source locally)
 
 ```bash
 # Create a virtual environment
@@ -35,7 +41,7 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Option 2: Using conda
+### Option 3: Using conda (Install from source locally)
 ```bash
 # Create a conda environment
 conda create -n vvgo-client python=3.10
@@ -45,7 +51,109 @@ conda activate vvgo-client
 pip install -r requirements.txt
 ```
 
-## Usage Guide
+# Usage Guide (Option 1)
+
+### Programmatic Usage
+You can also use the client functions in your own Python code. Install VoucherVisionGO-client from PyPi:
+
+```python
+from client import process_vouchers
+
+if __name__ == '__main__':
+	process_vouchers(
+    server="https://vouchervision-go-XXXXXX.app", 
+    output_dir="./output", 
+    prompt="SLTPvM_default_chromosome.yaml", 
+    image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+    directory=None, 
+    file_list=None, 
+    verbose=True, 
+    save_to_csv=True, 
+    max_workers=4)
+
+	process_vouchers(
+    server="https://vouchervision-go-XXXXXX.app", 
+    output_dir="./output2", 
+    prompt="SLTPvM_default_chromosome.yaml", 
+    image=None, 
+    directory="D:/Dropbox/VoucherVisionGO/demo/images", 
+    file_list=None, 
+    verbose=True, 
+    save_to_csv=True, 
+    max_workers=4)
+
+```
+
+To get the JSON packet for a single specimen record:
+
+```python
+import os
+from client import process_image, ordereddict_to_json, get_output_filename
+
+if __name__ == '__main__':
+	image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
+	output_dir = "./output"
+	output_file = get_output_filename(image_path, output_dir)
+	fname = os.path.basename(output_file).split(".")[0]
+
+	result = process_image(fname=fname,
+    server_url="https://vouchervision-go-XXXXXX.app", 
+    image_path=image_path, 
+    output_dir=output_dir, 
+    verbose=True, 
+    engines= ["gemini-2.0-flash"],
+    prompt="SLTPvM_default_chromosome.yaml")
+	# Convert to JSON string
+	output_str = ordereddict_to_json(result, output_type="json")
+	print(output_str)
+	# Or keep it as a python dict
+	output_dict = ordereddict_to_json(result, output_type="dict")
+	print(output_dict)
+```
+
+### Viewing prompts from the command line if you install using PyPi
+To see an overview of available prompts:
+```bash
+vv-prompts --server https://vouchervision-go-XXXXXX.app --view 
+```
+
+To see the entire chosen prompt:
+```bash
+vv-prompts --server https://vouchervision-go-XXXXXX.app --prompt "SLTPvM_default.yaml" --raw
+```
+
+### Running VoucherVision from the command line if you install using PyPi
+
+Process a single image
+```bash
+vouchervision --server https://vouchervision-go-XXXXXX.app 
+  --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
+  --output-dir ./output 
+  --prompt SLTPvM_default_chromosome.yaml 
+  --verbose 
+  --save-to-csv
+```
+
+Process a directory of images
+```bash
+vouchervision --server https://vouchervision-go-XXXXXX.app 
+  --directory ./demo/images 
+  --output-dir ./output2 
+  --prompt SLTPvM_default_chromosome.yaml 
+  --verbose 
+  --save-to-csv 
+  --max-workers 4
+```
+
+Changing OCR engine
+```bash
+vouchervision --server https://vouchervision-go-XXXXXX.app 
+  --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
+  --output-dir ./output3 
+  --engines "gemini-2.0-flash"
+```
+
+# Usage Guide (Options 2 & 3)
 The VoucherVisionGO client provides several ways to process specimen images through the VoucherVision API. Here are the main usage patterns:
 
 ### Basic Command Structure
@@ -197,63 +305,6 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --save-to-csv
 ```
 
-## Programmatic Usage
-You can also use the client functions in your own Python code. Install VoucherVisionGO-client from PyPi:
-
-```python
-from client import process_vouchers
-
-if __name__ == '__main__':
-	process_vouchers(
-    server="https://vouchervision-go-XXXXXX.app", 
-    output_dir="./output", 
-    prompt="SLTPvM_default_chromosome.yaml", 
-    image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
-    directory=None, 
-    file_list=None, 
-    verbose=True, 
-    save_to_csv=True, 
-    max_workers=4)
-
-	process_vouchers(
-    server="https://vouchervision-go-XXXXXX.app", 
-    output_dir="./output2", 
-    prompt="SLTPvM_default_chromosome.yaml", 
-    image=None, 
-    directory="D:/Dropbox/VoucherVisionGO/demo/images", 
-    file_list=None, 
-    verbose=True, 
-    save_to_csv=True, 
-    max_workers=4)
-
-```
-
-To get the JSON packet for a single specimen record:
-
-```python
-import os
-from client import process_image, ordereddict_to_json, get_output_filename
-
-if __name__ == '__main__':
-	image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
-	output_dir = "./output"
-	output_file = get_output_filename(image_path, output_dir)
-	fname = os.path.basename(output_file).split(".")[0]
-
-	result = process_image(fname=fname,
-    server_url="https://vouchervision-go-XXXXXX.app", 
-    image_path=image_path, 
-    output_dir=output_dir, 
-    verbose=True, 
-    engines= ["gemini-2.0-flash"],
-    prompt="SLTPvM_default_chromosome.yaml")
-	# Convert to JSON string
-	output_str = ordereddict_to_json(result, output_type="json")
-	print(output_str)
-	# Or keep it as a python dict
-	output_dict = ordereddict_to_json(result, output_type="dict")
-	print(output_dict)
-```
 
 ## Contributing
 If you encounter any issues or have suggestions for improvements, please open an issue in the main repository [VoucherVisionGO](https://github.com/Gene-Weaver/VoucherVisionGO).
