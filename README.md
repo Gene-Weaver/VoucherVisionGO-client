@@ -15,6 +15,13 @@ This repository is designed for users who only need the client component without
 - Focused functionality
 - Simple installation process
 
+## Information 
+VoucherVision is designed to transcribe museum specimen labels. Please see the [VoucherVision Github](https://github.com/Gene-Weaver/VoucherVision) for more information. 
+
+As of March 2025, the University of Michigan is allowing free access to VoucherVision. The API is hosted on-demand. It takes about 1 minute for the server to wake up, then subsequent calls are much faster. The API is parallelized and scalable, making this inference much faster than the regular VoucherVision deployment. The tradeoff is that you have less control over the transcription methods. The API supports Google's "gemini-1.5-pro" and "gemini-2.0-flash" for OCR and uses "gemini-2.0-flash" for parsing the unformatted text into JSON. If you want pure speed, use only "gemini-2.0-flash" for both tasks. 
+
+If you want to transcribe different fields, reach out and I can help you develop a prompt or upload your existing prompt to make it available on the API. 
+
 ## Requirements
 
 - Python 3.10 or higher
