@@ -219,20 +219,20 @@ The path to your local output folder:
 ### List all prompts
 First row linux/Mac, second row Windows
 ```bash
-curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text"
-(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text").Content
+curl "https://vouchervision-go-XXXXXX.appprompts?format=text"
+(curl "https://vouchervision-go-XXXXXX.appprompts?format=text").Content
 ```
 
 ### View a specific prompt
 ```bash
-curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text"
-(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text").Content
+curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text"
+(curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text").Content
 ```
 
 ### Getting a specific prompt in JSON format (default)
 ```bash
-curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml"
-(curl "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml").Content
+curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml"
+(curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml").Content
 ```
 
 
