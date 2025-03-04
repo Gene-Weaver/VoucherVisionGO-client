@@ -530,6 +530,7 @@ def main():
     # Ensure max_workers is no more than 4
     max_workers = min(args.max_workers, 32)
     
+    
     # Create output directory if it doesn't exist
     os.makedirs(args.output_dir, exist_ok=True)
 

@@ -183,7 +183,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 ```
 
 ## Programmatic Usage
-You can also use the client functions in your own Python code:
+You can also use the client functions in your own Python code. Install VoucherVisionGO-client from PyPi:
 
 ```python
 from client import process_image
@@ -191,7 +191,7 @@ from client import process_image
 # Process a single image
 result = process_image(
     server_url="https://vouchervision-go-XXXXXX.app",
-    image_path="path/to/image.jpg",
+    image="path/to/image.jpg",
     output_dir="./results",
     verbose=True,
     engines=["gemini-1.5-pro", "gemini-2.0-flash"],
