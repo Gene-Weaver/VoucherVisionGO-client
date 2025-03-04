@@ -187,20 +187,47 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 You can also use the client functions in your own Python code. Install VoucherVisionGO-client from PyPi:
 
 ```python
+from client import process_vouchers
+
+if __name__ == '__main__':
+	process_vouchers(
+    server="https://vouchervision-go-XXXXXX.app", 
+    output_dir="./output", 
+    prompt="SLTPvM_default_chromosome.yaml", 
+    image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+    directory=None, 
+    file_list=None, 
+    verbose=True, 
+    save_to_csv=True, 
+    max_workers=4)
+
+	process_vouchers(
+    server="https://vouchervision-go-XXXXXX.app", 
+    output_dir="./output2", 
+    prompt="SLTPvM_default_chromosome.yaml", 
+    image=None, 
+    directory="D:/Dropbox/VoucherVisionGO/demo/images", 
+    file_list=None, 
+    verbose=True, 
+    save_to_csv=True, 
+    max_workers=4)
+
+```
+
+To get the JSON packet for a single specimen record:
+
+```python
 from client import process_image
 
-# Process a single image
-result = process_image(
-    server_url="https://vouchervision-go-XXXXXX.app",
-    image="path/to/image.jpg",
-    output_dir="./results",
-    verbose=True,
-    engines=["gemini-1.5-pro", "gemini-2.0-flash"],
-    prompt="SLTPvM_default.yaml"
-)
-
-# Access the extracted data
-formatted_json = result.get('formatted_json', {})
+if __name__ == '__main__':
+  json_packet = process_image(
+    server_url="https://vouchervision-go-XXXXXX.app", 
+    image_path="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+    output_dir="./output", 
+    verbose=True, 
+    engines= ["gemini-1.5-pro", "gemini-2.0-flash"],
+    prompt="SLTPvM_default_chromosome.yaml") 
+  print(json_packet)
 ```
 
 ## Contributing
