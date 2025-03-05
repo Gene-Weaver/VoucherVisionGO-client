@@ -27,6 +27,11 @@ If you want to transcribe different fields, reach out and I can help you develop
 - Python 3.10 or higher
 - External dependencies (see installation options below)
 
+## Authentication
+
+To use the API you need to apply for an authorization token. Go to the [login page](https://vouchervision-go-738307415303.us-central1.run.app/login) and submit your info. 
+Copy the token and store it in a safe location. Never put the token directly into your code. Always use environment variables or secrets. 
+
 ## Installation
 
 Choose one of the following installation methods:
@@ -77,9 +82,12 @@ pip install -r requirements.txt
 You can also use the client functions in your own Python code. Install VoucherVisionGO-client from PyPi:
 
 ```python
+import os
 from client import process_vouchers
 
 if __name__ == '__main__':
+  auth_token = os.environ.get("your_auth_token") # Add auth token as an environment variable or secret
+
 	process_vouchers(
     server="https://vouchervision-go-XXXXXX.app", 
     output_dir="./output", 
@@ -89,7 +97,8 @@ if __name__ == '__main__':
     file_list=None, 
     verbose=True, 
     save_to_csv=True, 
-    max_workers=4)
+    max_workers=4,
+    auth_token=auth_token)  
 
 	process_vouchers(
     server="https://vouchervision-go-XXXXXX.app", 
@@ -100,7 +109,8 @@ if __name__ == '__main__':
     file_list=None, 
     verbose=True, 
     save_to_csv=True, 
-    max_workers=4)
+    max_workers=4,
+    auth_token=auth_token)  
 
 ```
 
@@ -111,6 +121,8 @@ import os
 from client import process_image, ordereddict_to_json, get_output_filename
 
 if __name__ == '__main__':
+  auth_token = os.environ.get("your_auth_token") # Add auth token as an environment variable or secret
+
 	image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
 	output_dir = "./output"
 	output_file = get_output_filename(image_path, output_dir)
@@ -122,10 +134,13 @@ if __name__ == '__main__':
     output_dir=output_dir, 
     verbose=True, 
     engines= ["gemini-2.0-flash"],
-    prompt="SLTPvM_default_chromosome.yaml")
+    prompt="SLTPvM_default_chromosome.yaml",
+    auth_token=auth_token)
+
 	# Convert to JSON string
 	output_str = ordereddict_to_json(result, output_type="json")
 	print(output_str)
+
 	# Or keep it as a python dict
 	output_dict = ordereddict_to_json(result, output_type="dict")
 	print(output_dict)
@@ -134,12 +149,12 @@ if __name__ == '__main__':
 ### Viewing prompts from the command line if you install using PyPi
 To see an overview of available prompts:
 ```bash
-vv-prompts --server https://vouchervision-go-XXXXXX.app --view 
+vv-prompts --server https://vouchervision-go-XXXXXX.app --view --auth-token "your_auth_token"
 ```
 
 To see the entire chosen prompt:
 ```bash
-vv-prompts --server https://vouchervision-go-XXXXXX.app --prompt "SLTPvM_default.yaml" --raw
+vv-prompts --server https://vouchervision-go-XXXXXX.app --prompt "SLTPvM_default.yaml" --raw --auth-token "your_auth_token"
 ```
 
 ### Running VoucherVision from the command line if you install using PyPi
@@ -152,6 +167,7 @@ vouchervision --server https://vouchervision-go-XXXXXX.app
   --prompt SLTPvM_default_chromosome.yaml 
   --verbose 
   --save-to-csv
+  --auth-token "your_auth_token"
 ```
 
 Process a directory of images
@@ -163,6 +179,7 @@ vouchervision --server https://vouchervision-go-XXXXXX.app
   --verbose 
   --save-to-csv 
   --max-workers 4
+  --auth-token "your_auth_token"
 ```
 
 Changing OCR engine
@@ -171,6 +188,7 @@ vouchervision --server https://vouchervision-go-XXXXXX.app
   --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
   --output-dir ./output3 
   --engines "gemini-2.0-flash"
+  --auth-token "your_auth_token"
 ```
 
 # Usage Guide (Options 2 & 3)
@@ -187,12 +205,17 @@ python client.py --server <SERVER_URL>
                  --engines <ENGINE1> <ENGINE2>
                  --prompt <PROMPT_FILE>
                  --max-workers <NUM_WORKERS>
+                 --auth-token <YOUR_AUTH_TOKEN>
 ```
 
 ### Required Arguments
 The server url:
 
 * `--server`: URL of the VoucherVision API server
+
+Authentication:
+
+* `--auth-token`: Your authentication token (obtained from the login page)
 
 One of the following input options:
 
@@ -219,20 +242,20 @@ The path to your local output folder:
 ### List all prompts
 First row linux/Mac, second row Windows
 ```bash
-curl "https://vouchervision-go-XXXXXX.appprompts?format=text"
-(curl "https://vouchervision-go-XXXXXX.appprompts?format=text").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?format=text"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?format=text").Content
 ```
 
 ### View a specific prompt
 ```bash
-curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text"
-(curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text").Content
 ```
 
 ### Getting a specific prompt in JSON format (default)
 ```bash
-curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml"
-(curl "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml").Content
 ```
 
 
@@ -245,6 +268,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
   --output-dir "./results/single_image" 
   --verbose
+  --auth-token "your_auth_token"
 ```
 
 #### Processing an Image from URL
@@ -253,6 +277,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --image "https://swbiodiversity.org/imglib/h_seinet/seinet/KHD/KHD00041/KHD00041592_lg.jpg" 
   --output-dir "./results/url_image" 
   --verbose
+  --auth-token "your_auth_token"
 ```
 
 #### Processing All Images in a Directory
@@ -261,6 +286,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --directory "./demo/images" 
   --output-dir "./results/multiple_images" 
   --max-workers 4
+  --auth-token "your_auth_token"
 ```
 
 #### Processing Images from a CSV List
@@ -269,6 +295,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --file-list "./demo/csv/file_list.csv" 
   --output-dir "./results/from_csv" 
   --max-workers 8
+  --auth-token "your_auth_token"
 ```
 
 #### Processing Images from a Text File List
@@ -276,6 +303,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 python client.py --server https://vouchervision-go-XXXXXX.app 
   --file-list "./demo/txt/file_list.txt" 
   --output-dir "./results/from_txt" 
+  --auth-token "your_auth_token"
 ```
 
 #### Using a Custom Prompt
@@ -285,6 +313,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --output-dir "./results/custom_prompt" 
   --prompt "SLTPvM_default_chromosome.yaml" 
   --verbose
+  --auth-token "your_auth_token"
 ```
 
 #### Saving Results to CSV
@@ -293,6 +322,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --directory "./demo/images" 
   --output-dir "./results/with_csv" 
   --save-to-csv
+  --auth-token "your_auth_token"
 ```
 
 ## Output
@@ -313,6 +343,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --output-dir "./results/custom_engines" 
   --engines "gemini-1.5-pro" "gemini-2.0-flash" 
   --verbose
+  --auth-token "your_auth_token"
 ```
 
 Using only 1 of the best Gemini models for OCR.
@@ -322,6 +353,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --output-dir "./results/custom_engines" 
   --engines "gemini-2.0-flash" 
   --verbose
+  --auth-token "your_auth_token"
 ```
 
 #### Processing Large Batches with Parallel Workers
@@ -333,6 +365,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
   --output-dir "./results/parallel" 
   --max-workers 32 
   --save-to-csv
+  --auth-token "your_auth_token"
 ```
 
 
