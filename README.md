@@ -89,7 +89,7 @@ if __name__ == '__main__':
   auth_token = os.environ.get("your_auth_token") # Add auth token as an environment variable or secret
 
 	process_vouchers(
-    server="https://vouchervision-go-XXXXXX.app", 
+    server="https://vouchervision-go-738307415303.us-central1.run.app/", 
     output_dir="./output", 
     prompt="SLTPvM_default_chromosome.yaml", 
     image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     auth_token=auth_token)  
 
 	process_vouchers(
-    server="https://vouchervision-go-XXXXXX.app", 
+    server="https://vouchervision-go-738307415303.us-central1.run.app/", 
     output_dir="./output2", 
     prompt="SLTPvM_default_chromosome.yaml", 
     image=None, 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 	fname = os.path.basename(output_file).split(".")[0]
 
 	result = process_image(fname=fname,
-    server_url="https://vouchervision-go-XXXXXX.app", 
+    server_url="https://vouchervision-go-738307415303.us-central1.run.app/", 
     image_path=image_path, 
     output_dir=output_dir, 
     verbose=True, 
@@ -149,19 +149,19 @@ if __name__ == '__main__':
 ### Viewing prompts from the command line if you install using PyPi
 To see an overview of available prompts:
 ```bash
-vv-prompts --server https://vouchervision-go-XXXXXX.app --view --auth-token "your_auth_token"
+vv-prompts --server https://vouchervision-go-738307415303.us-central1.run.app/ --view --auth-token "your_auth_token"
 ```
 
 To see the entire chosen prompt:
 ```bash
-vv-prompts --server https://vouchervision-go-XXXXXX.app --prompt "SLTPvM_default.yaml" --raw --auth-token "your_auth_token"
+vv-prompts --server https://vouchervision-go-738307415303.us-central1.run.app/ --prompt "SLTPvM_default.yaml" --raw --auth-token "your_auth_token"
 ```
 
 ### Running VoucherVision from the command line if you install using PyPi
 
 Process a single image
 ```bash
-vouchervision --server https://vouchervision-go-XXXXXX.app 
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
   --output-dir ./output 
   --prompt SLTPvM_default_chromosome.yaml 
@@ -172,7 +172,7 @@ vouchervision --server https://vouchervision-go-XXXXXX.app
 
 Process a directory of images
 ```bash
-vouchervision --server https://vouchervision-go-XXXXXX.app 
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --directory ./demo/images 
   --output-dir ./output2 
   --prompt SLTPvM_default_chromosome.yaml 
@@ -184,7 +184,7 @@ vouchervision --server https://vouchervision-go-XXXXXX.app
 
 Changing OCR engine
 ```bash
-vouchervision --server https://vouchervision-go-XXXXXX.app 
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
   --output-dir ./output3 
   --engines "gemini-2.0-flash"
@@ -237,25 +237,25 @@ The path to your local output folder:
 
 ## View Available Prompts
 
-[View the prompts in a web GUI](https://vouchervision-go-XXXXXX.app/prompts-ui)
+[View the prompts in a web GUI](https://vouchervision-go-738307415303.us-central1.run.app//prompts-ui)
 
 ### List all prompts
 First row linux/Mac, second row Windows
 ```bash
-curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?format=text"
-(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?format=text").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?format=text").Content
 ```
 
 ### View a specific prompt
 ```bash
-curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text"
-(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml&format=text").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml&format=text").Content
 ```
 
 ### Getting a specific prompt in JSON format (default)
 ```bash
-curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml"
-(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX.appprompts?prompt=SLTPvM_default.yaml").Content
+curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml"
+(curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-738307415303.us-central1.run.app/prompts?prompt=SLTPvM_default.yaml").Content
 ```
 
 
@@ -264,7 +264,7 @@ curl -H "Authorization: Bearer your_auth_token" "https://vouchervision-go-XXXXXX
 #### Processing a Single Local Image
 
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
   --output-dir "./results/single_image" 
   --verbose
@@ -273,7 +273,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Processing an Image from URL
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image "https://swbiodiversity.org/imglib/h_seinet/seinet/KHD/KHD00041/KHD00041592_lg.jpg" 
   --output-dir "./results/url_image" 
   --verbose
@@ -282,7 +282,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Processing All Images in a Directory
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --directory "./demo/images" 
   --output-dir "./results/multiple_images" 
   --max-workers 4
@@ -291,7 +291,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Processing Images from a CSV List
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --file-list "./demo/csv/file_list.csv" 
   --output-dir "./results/from_csv" 
   --max-workers 8
@@ -300,7 +300,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Processing Images from a Text File List
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --file-list "./demo/txt/file_list.txt" 
   --output-dir "./results/from_txt" 
   --auth-token "your_auth_token"
@@ -308,7 +308,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Using a Custom Prompt
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image "https://swbiodiversity.org/imglib/h_seinet/seinet/KHD/KHD00041/KHD00041592_lg.jpg" 
   --output-dir "./results/custom_prompt" 
   --prompt "SLTPvM_default_chromosome.yaml" 
@@ -318,7 +318,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 #### Saving Results to CSV
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --directory "./demo/images" 
   --output-dir "./results/with_csv" 
   --save-to-csv
@@ -338,7 +338,7 @@ The client saves the following outputs:
 
 Using BOTH of the best Gemini models for OCR (default)
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
   --output-dir "./results/custom_engines" 
   --engines "gemini-1.5-pro" "gemini-2.0-flash" 
@@ -348,7 +348,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 
 Using only 1 of the best Gemini models for OCR.
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
   --output-dir "./results/custom_engines" 
   --engines "gemini-2.0-flash" 
@@ -360,7 +360,7 @@ python client.py --server https://vouchervision-go-XXXXXX.app
 For large datasets, you can adjust the number of parallel workers:
 
 ```bash
-python client.py --server https://vouchervision-go-XXXXXX.app 
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
   --file-list "./demo/txt/file_list32.txt" 
   --output-dir "./results/parallel" 
   --max-workers 32 
