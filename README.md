@@ -40,13 +40,18 @@ Choose one of the following installation methods:
 
 Install
 ```bash
-pip install vouchervision-go-client
+pip install vouchervision-go-client[full]
 ```
 
 Upgrade
 ```bash
-pip install --upgrade vouchervision-go-client
+pip install --upgrade vouchervision-go-client[full]
+```
 
+> Note: You may need to install these packages too:
+
+```bash
+pip install requests pandas termcolor tabulate tqdm
 ```
 
 ### Option 2: Using pip (Install from source locally)
