@@ -196,6 +196,16 @@ vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app
   --auth-token "your_auth_token"
 ```
 
+ONLY produce OCR text
+```bash
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
+  --output-dir ./output3 
+  --engines "gemini-2.0-flash"
+  --auth-token "your_auth_token"
+  --ocr-only
+```
+
 # Usage Guide (Options 2 & 3)
 The VoucherVisionGO client provides several ways to process specimen images through the VoucherVision API. Here are the main usage patterns:
 
@@ -239,6 +249,7 @@ The path to your local output folder:
 * `--verbose`: Print all output to console. Turns off when processing bulk images, only available for single image calls.
 * `--save-to-csv`: Save all results to a CSV file in the output directory.
 * `--max-workers`: Maximum number of parallel workers. If you are processing 100s/1,000s of images increase this to 8, 16, or 32. Otherwise just skip this and let it use default values. (default: 4, max: 32)
+* `--ocr-only`: Run only the OCR portion of VoucherVision. This will return the same final JSON packet, but with an empty "formatted_json" field. 
 
 ## View Available Prompts
 
@@ -330,12 +341,94 @@ python client.py --server https://vouchervision-go-738307415303.us-central1.run.
   --auth-token "your_auth_token"
 ```
 
+#### Running in OCR-only mode
+```bash
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --directory "./demo/images" 
+  --output-dir "./results/with_csv" 
+  --save-to-csv
+  --auth-token "your_auth_token"
+  --ocr-only
+```
+
 ## Output
 The client saves the following outputs:
 
 * Individual JSON files for each processed image in the specified output directory.
 * A consolidated CSV file with all results if --save-to-csv option is used. First column will be the local filename or filename optained from the url.
 * Terminal output with processing details if --verbose option is used. 
+
+### An example of the JSON packet returned by the VVGO API
+
+```json
+{
+  "filename": "31234100396116",
+  "ocr_info": {
+    "gemini-1.5-pro": {
+      "ocr_text": "EASTERN KENTUCKY UNIVERSITY\nHERBARIUM\n060934\n\nKentucky\nLetcher County\nDiapensiaceae\n*Galax aphylla* auct. non L.\nAbove falls.\n\nWhitesburg Q.; Bad Branch. 1.5 miles NE\nof Eolia.\n\nR. Hannan & L. R.\nPhillippe 2022                                      May 31, 1979\n\nIK\n3 1234 10039611 6\nEastern Kentucky University Herbarium\n\n\n*Galax aphylla*\n\n",
+      "cost_in": 0.00077875,
+      "cost_out": 0.00062,
+      "total_cost": 0.00139875,
+      "rates_in": 1.25,
+      "rates_out": 5.0,
+      "tokens_in": 623,
+      "tokens_out": 124
+    },
+    "gemini-2.0-flash": {
+      "ocr_text": "EASTERN\nKENTUCKY\nUNIVERSITY\nHERBARIUM\n060934\nINCH\nOPTIRECTILINEAR\nU.S.A.\nKentucky\nEKY\nLetcher County\nDiapensiaceae\nGalax aphylla auct. non L.\nAbove falls.\nWhitesburg Q.; Bad Branch. 1.5 miles NE\nof Eolia.\nR. Hannnan & L. R.\nPhillippe 2022\nMay. 31, 1979\nIK\n3 1234 10039611 6\nEastern Kentucky University Herbarium\n\n\nGalax aphylla\n\n",
+      "cost_in": 0.0006815,
+      "cost_out": 5.68e-05,
+      "total_cost": 0.0007383,
+      "rates_in": 0.1,
+      "rates_out": 0.4,
+      "tokens_in": 6815,
+      "tokens_out": 142
+    }
+  },
+  "parsing_info": {
+    "model": "gemini-2-0-flash",
+    "input": 2136,
+    "output": 437,
+    "cost_in": 0.0002136,
+    "cost_out": 0.00017480000000000002
+  },
+  "ocr": "\ngemini-1.5-pro OCR:\nEASTERN KENTUCKY UNIVERSITY\nHERBARIUM\n060934\n\nKentucky\nLetcher County\nDiapensiaceae\n*Galax aphylla* auct. non L.\nAbove falls.\n\nWhitesburg Q.; Bad Branch. 1.5 miles NE\nof Eolia.\n\nR. Hannan & L. R.\nPhillippe 2022                                      May 31, 1979\n\nIK\n3 1234 10039611 6\nEastern Kentucky University Herbarium\n\n\n*Galax aphylla*\n\n\ngemini-2.0-flash OCR:\nEASTERN\nKENTUCKY\nUNIVERSITY\nHERBARIUM\n060934\nINCH\nOPTIRECTILINEAR\nU.S.A.\nKentucky\nEKY\nLetcher County\nDiapensiaceae\nGalax aphylla auct. non L.\nAbove falls.\nWhitesburg Q.; Bad Branch. 1.5 miles NE\nof Eolia.\nR. Hannnan & L. R.\nPhillippe 2022\nMay. 31, 1979\nIK\n3 1234 10039611 6\nEastern Kentucky University Herbarium\n\n\nGalax aphylla\n\n",
+  "formatted_json": {
+    "catalogNumber": "060934",
+    "scientificName": "Galax aphylla",
+    "genus": "Galax",
+    "specificEpithet": "aphylla",
+    "scientificNameAuthorship": "auct. non L.",
+    "collectedBy": "R. Hannan & L. R. Phillippe",
+    "collectorNumber": "2022",
+    "identifiedBy": "IK",
+    "identifiedDate": "",
+    "identifiedConfidence": "",
+    "identifiedRemarks": "",
+    "identificationHistory": "",
+    "verbatimCollectionDate": "May 31, 1979",
+    "collectionDate": "1979-05-31",
+    "collectionDateEnd": "",
+    "habitat": "Above falls.",
+    "chromosomeCount": "",
+    "guardCell": "",
+    "specimenDescription": "",
+    "cultivated": "",
+    "continent": "North america",
+    "country": "Usa",
+    "stateProvince": "Kentucky",
+    "county": "Letcher County",
+    "locality": "Whitesburg Q.; Bad Branch. 1.5 miles NE of Eolia.",
+    "verbatimCoordinates": "",
+    "decimalLatitude": "",
+    "decimalLongitude": "",
+    "minimumElevationInMeters": "",
+    "maximumElevationInMeters": "",
+    "elevationUnits": "",
+    "additionalText": "EASTERN KENTUCKY UNIVERSITY\nHERBARIUM\nEastern Kentucky University Herbarium"
+  }
+}
+```
 
 ## Advanced Usage
 
