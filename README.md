@@ -98,6 +98,7 @@ if __name__ == '__main__':
     output_dir="./output", 
     prompt="SLTPvM_default_chromosome.yaml", 
     image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+    llm_model="gemini-2.5-pro-preview-03-25",  # Specify the LLM model
     directory=None, 
     file_list=None, 
     verbose=True, 
@@ -110,6 +111,7 @@ if __name__ == '__main__':
     output_dir="./output2", 
     prompt="SLTPvM_default_chromosome.yaml", 
     image=None, 
+    llm_model=None, # Use the default LLM
     directory="D:/Dropbox/VoucherVisionGO/demo/images", 
     file_list=None, 
     verbose=True, 
@@ -432,7 +434,7 @@ The client saves the following outputs:
 
 ## Advanced Usage
 
-#### Using Different OCR Engines
+### Using Different OCR Engines
 
 Using BOTH of the best Gemini models for OCR (default)
 ```bash
@@ -454,7 +456,52 @@ python client.py --server https://vouchervision-go-738307415303.us-central1.run.
   --auth-token "your_auth_token"
 ```
 
-#### Processing Large Batches with Parallel Workers
+### Using Different LLM Models
+
+In addition to selecting OCR engines, you can specify which LLM model to use for parsing the OCR text into structured JSON data.
+
+#### From the command line
+
+```bash
+# Specify a specific LLM model for processing
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
+  --output-dir "./results/custom_llm" 
+  --llm-model "gemini-2.5-flash-preview-04-17" 
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+#### From PyPi
+```python
+import os
+from client import process_vouchers
+
+auth_token = os.environ.get("your_auth_token")
+
+process_vouchers(
+  server="https://vouchervision-go-738307415303.us-central1.run.app/", 
+  output_dir="./output", 
+  prompt="SLTPvM_default.yaml", 
+  image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+  llm_model="gemini-2.5-pro-preview-03-25",  # Specify the LLM model
+  verbose=True, 
+  save_to_csv=True, 
+  auth_token=auth_token
+)
+```
+
+## Available LLM Models
+You can use any Gemini model that supports vision capabilities:
+
+- gemini-1.5-pro - High quality but slower, will be deprecated soon
+- gemini-2.0-flash - Fast with good quality (default)
+- gemini-2.5-flash-preview-04-17
+- gemini-2.5-pro-preview-03-25 - Highest quality parsing, can use tools, geolocate
+
+For the most up-to-date list of supported models, refer to the [Google AI Gemini API documentation](https://ai.google.dev/gemini-api/docs/models)
+
+### Processing Large Batches with Parallel Workers
 For large datasets, you can adjust the number of parallel workers:
 
 ```bash
