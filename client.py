@@ -301,7 +301,7 @@ def print_results_summary(results, fname):
             ocr_table = []
             total_cost = 0
             
-            for engine, llm_model, engine_data in section_data.items():
+            for engine, engine_data in section_data.items():
                 tokens_in = engine_data.get('tokens_in', 0)
                 tokens_out = engine_data.get('tokens_out', 0)
                 cost = engine_data.get('total_cost', 0)
@@ -309,7 +309,6 @@ def print_results_summary(results, fname):
                 
                 ocr_table.append([
                     engine,
-                    llm_model,
                     f"{tokens_in:,}",
                     f"{tokens_out:,}",
                     f"${cost:.6f}"
