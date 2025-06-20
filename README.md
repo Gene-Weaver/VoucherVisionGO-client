@@ -491,6 +491,127 @@ process_vouchers(
 )
 ```
 
+### Using World Flora Online (WFO) Validation
+
+The `--include-wfo` flag enables taxonomic validation against the World Flora Online database. This feature validates plant names and provides additional taxonomic information in the results.
+
+When WFO validation is enabled, the results will include a WFO_info field containing taxonomic validation data and any corrections or additional information from the World Flora Online database.
+
+#### From the Command Line (Options 2 & 3)
+
+**Single image with WFO validation:**
+```bash
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg" 
+  --output-dir "./results/with_wfo" 
+  --include-wfo 
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+**Directory processing with WFO validation:**
+```bash
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --directory "./demo/images" 
+  --output-dir "./results/bulk_wfo" 
+  --include-wfo 
+  --max-workers 4
+  --auth-token "your_auth_token"
+```
+
+**Combining with custom prompt and LLM model:**
+```bash
+python client.py --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --image "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg" 
+  --output-dir "./results/advanced_wfo" 
+  --prompt "SLTPvM_default_chromosome.yaml" 
+  --llm-model "gemini-2.5-pro" 
+  --include-wfo 
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+#### From PyPi (Option 1)
+**Command line with PyPi installation:**
+```bash
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/ 
+  --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg 
+  --output-dir ./output 
+  --include-wfo 
+  --verbose 
+  --auth-token "your_auth_token"
+```
+
+**Programmatic usage with PyPi:**
+```python
+import os
+from client import process_vouchers
+
+auth_token = os.environ.get("your_auth_token")
+
+process_vouchers(
+  server="https://vouchervision-go-738307415303.us-central1.run.app/", 
+  output_dir="./output", 
+  prompt="SLTPvM_default.yaml", 
+  image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg", 
+  llm_model="gemini-2.5-pro-preview-03-25",
+  include_wfo=True,  # Enable WFO validation
+  verbose=True, 
+  save_to_csv=True, 
+  auth_token=auth_token
+)
+```
+
+**Single image processing with WFO:**
+```python
+import os
+from client import process_image, ordereddict_to_json, get_output_filename
+
+auth_token = os.environ.get("your_auth_token")
+
+image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
+output_dir = "./output"
+output_file = get_output_filename(image_path, output_dir)
+fname = os.path.basename(output_file).split(".")[0]
+
+result = process_image(
+  fname=fname,
+  server_url="https://vouchervision-go-738307415303.us-central1.run.app/", 
+  image_path=image_path, 
+  output_dir=output_dir, 
+  verbose=True, 
+  engines=["gemini-2.0-flash"],
+  prompt="SLTPvM_default.yaml",
+  include_wfo=True,  # Enable WFO validation
+  auth_token=auth_token
+)
+
+# The result will now include WFO validation data in the WFO_info field
+output_dict = ordereddict_to_json(result, output_type="dict")
+print("WFO Validation Results:", output_dict.get('WFO_info', 'No WFO data'))
+```
+
+#### API Usage
+**Using form data:**
+```bash
+curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process" \
+  -H "Authorization: Bearer your_auth_token" \
+  -F "file=@image.jpg" \
+  -F "include_wfo=true"
+```
+
+**Using Using URL processing:**
+```bash
+curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process-url" \
+  -H "Authorization: Bearer your_auth_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_url": "https://example.com/specimen.jpg",
+    "include_wfo": true,
+    "prompt": "SLTPvM_default.yaml"
+  }'
+```
+
 ## Available LLM Models
 You can use any Gemini model that supports vision capabilities:
 
