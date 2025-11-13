@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.40",  # Incremented version
+    version="0.1.42",  # "0.1.41" is transition away from client.py
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
@@ -25,14 +25,18 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    py_modules=["client", "list_prompts"],  # Added list_prompts.py
+    # IMPORTANT: include VoucherVision as a top-level module
+    py_modules=["VoucherVision", "client", "list_prompts", "url_name_parser"],
     python_requires=">=3.10",
     install_requires=[
         "requests",
+        "requests-toolbelt",  # needed for MultipartDecoder
         "termcolor",
         "tabulate",
         "tqdm",
-        "pyyaml",  # Added for list_prompts.py
+        "pyyaml",   # for list_prompts.py
+        "pandas",   # now required; used at import time in VoucherVision.py
+        "openpyxl", # needed for pandas to write .xlsx cleanly
     ],
     extras_require={
         "analytics": ["pandas"],
@@ -40,8 +44,9 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "vouchervision=client:main",  # Original client entry point
-            "vv-prompts=list_prompts:main",  # New entry point for list_prompts
+            # still point CLI to client:main, which now forwards to VoucherVision.main
+            "vouchervision=client:main",
+            "vv-prompts=list_prompts:main",
         ],
     },
 )
