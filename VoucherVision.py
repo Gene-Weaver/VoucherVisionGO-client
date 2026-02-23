@@ -68,8 +68,21 @@ def ordereddict_to_json(ordereddict_data, output_type="json"):
     else:  # Default to JSON string
         return json.dumps(regular_dict, indent=4)
     
-def process_image(fname, server_url, image_path, output_dir, verbose=False, 
-                  engines=None, llm_model=None, prompt=None, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_image(fname, 
+                  server_url, 
+                  image_path,
+                  output_dir,
+                  verbose=False, 
+                  engines=None, 
+                  llm_model=None, 
+                  prompt=None, 
+                  auth_token=None, 
+                  ocr_only=False, 
+                  notebook_mode=False, 
+                  skip_label_collage=False, 
+                  include_wfo=False,
+                  gemini_api_key=None
+                  ):
     """
     Process an image using the VoucherVision API server, now with support for multipart responses.
     """
@@ -91,7 +104,7 @@ def process_image(fname, server_url, image_path, output_dir, verbose=False,
             temp_file.write(response.content)
         
         try:
-            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, include_wfo)
+            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, include_wfo, gemini_api_key)
         finally:
             os.remove(temp_file_path)
     
@@ -104,7 +117,9 @@ def process_image(fname, server_url, image_path, output_dir, verbose=False,
     if prompt: data['prompt'] = prompt
     if ocr_only: data['ocr_only'] = 'true'
     if notebook_mode: data['notebook_mode'] = 'true'
+    if skip_label_collage: data['skip_label_collage'] = 'true'
     if include_wfo: data['include_wfo'] = 'true'
+    if gemini_api_key: data['gemini_api_key'] = gemini_api_key  
 
     headers = {}
     if auth_token:
@@ -179,7 +194,20 @@ def process_image(fname, server_url, image_path, output_dir, verbose=False,
     finally:
         files['file'].close()
 
-def process_image_file(server_url, image_path, engines, llm_model, prompt, output_dir, verbose, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_image_file(server_url, 
+                       image_path, 
+                       engines, 
+                       llm_model, 
+                       prompt, 
+                       output_dir, 
+                       verbose, 
+                       auth_token=None, 
+                       ocr_only=False, 
+                       notebook_mode=False, 
+                       skip_label_collage=False, 
+                       include_wfo=False, 
+                       gemini_api_key=None
+                       ):
     """
     Process a single image file and save the results
     
@@ -194,7 +222,9 @@ def process_image_file(server_url, image_path, engines, llm_model, prompt, outpu
         auth_token (str): Authentication token for the API
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
        
     Returns:
         dict: The processing results
@@ -204,7 +234,7 @@ def process_image_file(server_url, image_path, engines, llm_model, prompt, outpu
 
     try:
         # Process the image
-        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, include_wfo)
+        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key)
 
         # Print summary of results if verbose is enabled
         if verbose:
@@ -263,7 +293,21 @@ def process_image_file(server_url, image_path, engines, llm_model, prompt, outpu
         print(f"Error processing {image_path}: {e}")
         return None
 
-def process_images_parallel(server_url, image_paths, engines, llm_model, prompt, output_dir, verbose, max_workers=4, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_images_parallel(server_url, 
+                            image_paths, 
+                            engines, 
+                            llm_model, 
+                            prompt, 
+                            output_dir, 
+                            verbose, 
+                            max_workers=4, 
+                            auth_token=None, 
+                            ocr_only=False, 
+                            notebook_mode=False, 
+                            skip_label_collage=False, 
+                            include_wfo=False,
+                            gemini_api_key=None
+                            ):
     """
     Process multiple images in parallel
     
@@ -279,7 +323,9 @@ def process_images_parallel(server_url, image_paths, engines, llm_model, prompt,
         auth_token (str): Authentication token for the API
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
        
     Returns:
         list: List of processing results
@@ -313,7 +359,9 @@ def process_images_parallel(server_url, image_paths, engines, llm_model, prompt,
                 auth_token,
                 ocr_only,
                 notebook_mode,
+                skip_label_collage,
                 include_wfo,
+                gemini_api_key
             ): path for path in image_paths
         }
         
@@ -829,9 +877,24 @@ def verify_authentication(server_url, auth_token=None):
         print(f"ERROR: Could not connect to server: {str(e)}")
         return False
     
-def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model="gemini-2.0-flash",
-                    prompt="SLTPvM_default.yaml", image=None, directory=None, 
-                    file_list=None, verbose=False, save_to_xlsx=False, max_workers=4, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_vouchers(server, 
+                     output_dir, 
+                     engines=["gemini-2.0-flash"],
+                     llm_model="gemini-2.0-flash",
+                     prompt="SLTPvM_full.yaml", 
+                     image=None, 
+                     directory=None, 
+                     file_list=None, 
+                     verbose=False, 
+                     save_to_xlsx=False, 
+                     max_workers=4, 
+                     auth_token=None, 
+                     ocr_only=False, 
+                     notebook_mode=False, 
+                     skip_label_collage=False,
+                     include_wfo=False,
+                     gemini_api_key=None
+                     ):
     """
     Process voucher images through the VoucherVision API.
     
@@ -850,7 +913,9 @@ def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model
         auth_token (str): Authentication token for the API
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
         
     Returns:
         list: List of processed results if save_to_xlsx is True, otherwise None
@@ -888,7 +953,19 @@ def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model
         # Process based on the input type
         if image:
             # Single image (no need for parallelization)
-            result = process_image_file(server, image, engines, llm_model, prompt, output_dir, verbose, auth_token, ocr_only, notebook_mode, include_wfo)
+            result = process_image_file(server, 
+                                        image, 
+                                        engines, 
+                                        llm_model,
+                                        prompt, 
+                                        output_dir, 
+                                        verbose, 
+                                        auth_token,
+                                        ocr_only,
+                                        notebook_mode,
+                                        skip_label_collage, 
+                                        include_wfo, 
+                                        gemini_api_key)
             if result and save_to_xlsx:
                 all_results.append(result)
         
@@ -934,7 +1011,9 @@ def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model
                 auth_token,
                 ocr_only,
                 notebook_mode,
+                skip_label_collage,
                 include_wfo,
+                gemini_api_key
             )
             
             if save_to_xlsx:
@@ -963,7 +1042,9 @@ def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model
                 auth_token,
                 ocr_only,
                 notebook_mode,
+                skip_label_collage,
                 include_wfo,
+                gemini_api_key
             )
             
             if save_to_xlsx:
@@ -993,8 +1074,19 @@ def process_vouchers(server, output_dir, engines=["gemini-2.0-flash"], llm_model
         print(f"Total operation time: {int(minutes)} minutes and {int(seconds)} seconds")
         print(f"{'-' * N_SIZE}")
 
-def process_image_by_url(server_url, image_url, engines=None, llm_model=None, prompt=None, 
-                      verbose=False, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_image_by_url(server_url, 
+                         image_url, 
+                         engines=None, 
+                         llm_model=None, 
+                         prompt=None, 
+                         verbose=False,
+                         auth_token=None, 
+                         ocr_only=False, 
+                         notebook_mode=False, 
+                         skip_label_collage=False, 
+                         include_wfo=False,
+                         gemini_api_key=None
+                         ):
     """
     Process an image from a URL using the VoucherVision API server's process-url endpoint
     
@@ -1008,7 +1100,9 @@ def process_image_by_url(server_url, image_url, engines=None, llm_model=None, pr
         auth_token (str): Authentication token for the API (Firebase token or API key)
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
 
     Returns:
         dict: The processed results from the server
@@ -1037,8 +1131,12 @@ def process_image_by_url(server_url, image_url, engines=None, llm_model=None, pr
         data['ocr_only'] = True 
     if notebook_mode:
         data['notebook_mode'] = True 
+    if skip_label_collage:
+        data['skip_label_collage'] = True 
     if include_wfo:
         data['include_wfo'] = True
+    if gemini_api_key:
+        data['gemini_api_key'] = gemini_api_key
         
     # Determine auth header type based on auth_token format
     headers = {
@@ -1097,7 +1195,21 @@ def process_image_by_url(server_url, image_url, engines=None, llm_model=None, pr
         return None
 
 
-def process_urls_parallel(server_url, image_urls, engines, llm_model, prompt, output_dir, verbose, max_workers=4, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+def process_urls_parallel(server_url, 
+                          image_urls, 
+                          engines, 
+                          llm_model, 
+                          prompt, 
+                          output_dir, 
+                          verbose, 
+                          max_workers=4, 
+                          auth_token=None, 
+                          ocr_only=False, 
+                          notebook_mode=False, 
+                          skip_label_collage=False, 
+                          include_wfo=False,
+                          gemini_api_key=None
+                          ):
     """
     Process multiple image URLs in parallel
     
@@ -1113,7 +1225,9 @@ def process_urls_parallel(server_url, image_urls, engines, llm_model, prompt, ou
         auth_token (str): Authentication token for the API
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
        
     Returns:
         list: List of processing results
@@ -1135,7 +1249,19 @@ def process_urls_parallel(server_url, image_urls, engines, llm_model, prompt, ou
             filename = os.path.basename(output_file).split('.')[0]
             
             # Process the image URL
-            result = process_image_by_url(server_url, url, engines, llm_model, prompt, verbose, auth_token, ocr_only, notebook_mode, include_wfo)
+            result = process_image_by_url(server_url, 
+                                          url, 
+                                          engines, 
+                                          llm_model, 
+                                          prompt, 
+                                          verbose, 
+                                          auth_token, 
+                                          ocr_only, 
+                                          notebook_mode, 
+                                          skip_label_collage, 
+                                          include_wfo, 
+                                          gemini_api_key
+                                          )
             
             if result:
                 # Add filename to result
@@ -1178,8 +1304,18 @@ def process_urls_parallel(server_url, image_urls, engines, llm_model, prompt, ou
 
 
 def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_model="gemini-2.0-flash",
-                        prompt="SLTPvM_default.yaml", image_url=None, url_list=None, 
-                        verbose=False, save_to_xlsx=False, max_workers=4, auth_token=None, ocr_only=False, notebook_mode=False, include_wfo=False):
+                        prompt="SLTPvM_full.yaml", 
+                        image_url=None, 
+                        url_list=None, 
+                        verbose=False, 
+                        save_to_xlsx=False, 
+                        max_workers=4, 
+                        auth_token=None, 
+                        ocr_only=False, 
+                        notebook_mode=False, 
+                        skip_label_collage=False, 
+                        include_wfo=False, 
+                        gemini_api_key=None):
     """
     Process voucher images from URLs through the VoucherVision API.
     
@@ -1197,7 +1333,9 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
         auth_token (str): Authentication token for the API
         ocr_only (bool): Whether to only perform OCR and skip VoucherVision processing
         notebook_mode (bool): Whether to use notebook mode, which returns OCR as markdown
+        skip_label_collage (bool): Skip label collage, use full provided image
         include_wfo (bool): Whether to validate taxonomy against World Flora Online WFO
+        gemini_api_key (str): Provide your own Gemini API Key obtained from Google AI Studio. If not provided, will use the default VoucherVision Gemini API Key.
         
     Returns:
         list: List of processed results if save_to_xlsx is True, otherwise None
@@ -1218,6 +1356,8 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
         print("Running in OCR-only ode: Skipping VoucherVision JSON parsing")
     if notebook_mode:
         print("Running in Notebook Mode: Skipping VoucherVision JSON parsing, skipping text collage, using full image for OCR")
+    if skip_label_collage:
+        print("Skipping text collage, using full image for OCR")
 
     
     try:
@@ -1231,7 +1371,19 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
             filename = os.path.basename(output_file).split('.')[0]
             
             # Process the image URL
-            result = process_image_by_url(server, image_url, engines, llm_model, prompt, verbose, auth_token, ocr_only, notebook_mode, include_wfo)
+            result = process_image_by_url(server, 
+                                          image_url, 
+                                          engines, 
+                                          llm_model, 
+                                          prompt, 
+                                          verbose, 
+                                          auth_token, 
+                                          ocr_only, 
+                                          notebook_mode, 
+                                          skip_label_collage, 
+                                          include_wfo, 
+                                          gemini_api_key
+                                          )
             
             if result:
                 # Add filename to result
@@ -1271,8 +1423,9 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
                 auth_token,
                 ocr_only,
                 notebook_mode,
+                skip_label_collage,
                 include_wfo,
-                include_wfo,
+                gemini_api_key
             )
             
             if save_to_xlsx:
@@ -1324,8 +1477,8 @@ def main():
                         help='OCR engine options to use (default: gemini-2.0-flash)')
     parser.add_argument('--llm-model', default="gemini-2.0-flash",
                         help='OCR engine options to use (default: gemini-2.0-flash)')
-    parser.add_argument('--prompt', default="SLTPvM_default.yaml",
-                        help='Custom prompt file to use (default: SLTPvM_default.yaml)')
+    parser.add_argument('--prompt', default="SLTPvM_full.yaml",
+                        help='Custom prompt file to use (default: SLTPvM_full.yaml)')
     parser.add_argument('--output-dir', required=True,
                         help='Directory to save the output JSON results')
     parser.add_argument('--verbose', action='store_true',
@@ -1338,8 +1491,12 @@ def main():
                         help='Only perform OCR and skip VoucherVision processing')
     parser.add_argument('--notebook-mode', action='store_true',
                         help='Only perform OCR, skip text collage, use full image, return OCR as Markdown')
+    parser.add_argument('--skip-label-collage', action='store_true',
+                        help='Skip label text collage, use full image for OCR')
     parser.add_argument('--include-wfo', action='store_true',
                         help='Validate taxonomy against World Flora Online')
+    parser.add_argument('--gemini-api-key', default=None,
+                        help='(Optional) Provide your own Gemini API Key obtained from Google AI Studio')
     
     args = parser.parse_args()
     
@@ -1359,7 +1516,9 @@ def main():
         auth_token=args.auth_token,
         ocr_only=args.ocr_only,
         notebook_mode=args.notebook_mode,
+        skip_label_collage=args.skip_label_collage,
         include_wfo = args.include_wfo,
+        gemini_api_key = args.gemini_api_key
     )
 
 
