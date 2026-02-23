@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.43",  # "0.1.41" is transition away from client.py
+    version="0.1.44",  # "0.1.41" is transition away from client.py
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
@@ -20,9 +20,9 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/Gene-Weaver/VoucherVisionGO/issues",
     },
+    license="GPL-3.0-only",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
     # IMPORTANT: include VoucherVision as a top-level module
@@ -45,7 +45,8 @@ setup(
     entry_points={
         "console_scripts": [
             # still point CLI to client:main, which now forwards to VoucherVision.main
-            "vouchervision=client:main",
+            # "vouchervision=client:main",
+            "vouchervision=VoucherVision:main",
             "vv-prompts=list_prompts:main",
         ],
     },
