@@ -90,7 +90,7 @@ You can also use the client functions in your own Python code. Install VoucherVi
 
 ```python
 import os
-from client import process_vouchers
+from VoucherVision import process_vouchers
 
 if __name__ == '__main__':
   auth_token = os.environ.get("your_auth_token") # Add auth token as an environment variable or secret
@@ -550,7 +550,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
 #### From PyPi
 ```python
 import os
-from client import process_vouchers
+from VoucherVision import process_vouchers
 
 auth_token = os.environ.get("your_auth_token")
 gemini_api_key = os.environ.get("your_gemini_api_key")
@@ -613,7 +613,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
 #### From PyPi
 ```python
 import os
-from client import process_vouchers
+from VoucherVision import process_vouchers
 
 auth_token = os.environ.get("your_auth_token")
 
@@ -650,7 +650,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
 #### From PyPi
 ```python
 import os
-from client import process_vouchers
+from VoucherVision import process_vouchers
 
 auth_token = os.environ.get("your_auth_token")
 
@@ -719,7 +719,7 @@ vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app
 **Programmatic usage with PyPi:**
 ```python
 import os
-from client import process_vouchers
+from VoucherVision import process_vouchers
 
 auth_token = os.environ.get("your_auth_token")
 
