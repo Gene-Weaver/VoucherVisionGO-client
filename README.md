@@ -303,7 +303,7 @@ The path to your local output folder:
 * `--notebook-mode`: Run OCR only, skip the text label collage step, use the full image as input, and return OCR output formatted as Markdown. Useful for downstream document processing workflows.
 * `--skip-label-collage`: Skip the text label collage pre-processing step and send the full original image directly to OCR. Use this if your images are already cropped to the label or if the collage step produces poor results for your collection.
 * `--gemini-api-key`: (Optional) Provide your own Gemini API key obtained from [Google AI Studio](https://aistudio.google.com/). When provided, API calls to Gemini are billed to your own Google account rather than the shared server key.
-* `--use-cop90`: Add Copernicus GLO-90 elevation data to results. When enabled, if `decimalLatitude` and `decimalLongitude` are present in the formatted JSON, the response will include a supplemental COP90 elevation value (in meters). This does not replace any verbatim elevation data from the label — it is purely supplemental.
+* `--include-cop90`: Add Copernicus GLO-90 elevation data to results. When enabled, if `decimalLatitude` and `decimalLongitude` are present in the formatted JSON, the response will include a supplemental COP90 elevation value (in meters). This does not replace any verbatim elevation data from the label — it is purely supplemental.
 
 ## View Available Prompts
 
@@ -801,7 +801,7 @@ curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process-
 
 ### Using Copernicus GLO-90 Elevation Data
 
-The `--use-cop90` flag enriches results with elevation data from the Copernicus GLO-90 Digital Surface Model (90 m resolution), derived from the TanDEM-X mission (DLR/Airbus) and distributed by ESA via OpenTopography.
+The `--include-cop90` flag enriches results with elevation data from the Copernicus GLO-90 Digital Surface Model (90 m resolution), derived from the TanDEM-X mission (DLR/Airbus) and distributed by ESA via OpenTopography.
 
 When enabled, if `decimalLatitude` and `decimalLongitude` are present in the formatted JSON, the response will include the COP90 elevation (in meters) for those coordinates. This is supplemental data — it does not replace any verbatim elevation transcribed from the specimen label.
 
@@ -814,7 +814,7 @@ When enabled, if `decimalLatitude` and `decimalLongitude` are present in the for
 python VoucherVision.py --server https://vouchervision-go-738307415303.us-central1.run.app/
   --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg"
   --output-dir "./results/with_cop90"
-  --use-cop90
+  --include-cop90
   --verbose
   --auth-token "your_auth_token"
 ```
@@ -824,7 +824,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
 python VoucherVision.py --server https://vouchervision-go-738307415303.us-central1.run.app/
   --directory "./demo/images"
   --output-dir "./results/bulk_cop90"
-  --use-cop90
+  --include-cop90
   --max-workers 4
   --auth-token "your_auth_token"
 ```
@@ -835,7 +835,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
   --image "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
   --output-dir "./results/wfo_cop90"
   --include-wfo
-  --use-cop90
+  --include-cop90
   --verbose
   --auth-token "your_auth_token"
 ```
@@ -846,7 +846,7 @@ python VoucherVision.py --server https://vouchervision-go-738307415303.us-centra
 vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/
   --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg
   --output-dir ./output
-  --use-cop90
+  --include-cop90
   --verbose
   --auth-token "your_auth_token"
 ```
@@ -863,7 +863,7 @@ process_vouchers(
   output_dir="./output",
   prompt="SLTPvM_default.yaml",
   image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg",
-  use_cop90=True,  # Add COP90 elevation data
+  include_cop90=True,  # Add COP90 elevation data
   verbose=True,
   save_to_xlsx=True,
   auth_token=auth_token
@@ -890,7 +890,7 @@ result = process_image(
   verbose=True,
   engines=["gemini-2.0-flash"],
   prompt="SLTPvM_default.yaml",
-  use_cop90=True,  # Add COP90 elevation data
+  include_cop90=True,  # Add COP90 elevation data
   auth_token=auth_token
 )
 
