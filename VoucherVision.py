@@ -68,20 +68,21 @@ def ordereddict_to_json(ordereddict_data, output_type="json"):
     else:  # Default to JSON string
         return json.dumps(regular_dict, indent=4)
     
-def process_image(fname, 
-                  server_url, 
+def process_image(fname,
+                  server_url,
                   image_path,
                   output_dir,
-                  verbose=False, 
-                  engines=None, 
-                  llm_model=None, 
-                  prompt=None, 
-                  auth_token=None, 
-                  ocr_only=False, 
-                  notebook_mode=False, 
-                  skip_label_collage=False, 
+                  verbose=False,
+                  engines=None,
+                  llm_model=None,
+                  prompt=None,
+                  auth_token=None,
+                  ocr_only=False,
+                  notebook_mode=False,
+                  skip_label_collage=False,
                   include_wfo=False,
-                  gemini_api_key=None
+                  gemini_api_key=None,
+                  include_cop90=True
                   ):
     """
     Process an image using the VoucherVision API server, now with support for multipart responses.
@@ -104,7 +105,7 @@ def process_image(fname,
             temp_file.write(response.content)
         
         try:
-            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, include_wfo, gemini_api_key)
+            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, include_cop90)
         finally:
             os.remove(temp_file_path)
     
@@ -119,7 +120,8 @@ def process_image(fname,
     if notebook_mode: data['notebook_mode'] = 'true'
     if skip_label_collage: data['skip_label_collage'] = 'true'
     if include_wfo: data['include_wfo'] = 'true'
-    if gemini_api_key: data['gemini_api_key'] = gemini_api_key  
+    if gemini_api_key: data['gemini_api_key'] = gemini_api_key
+    if include_cop90: data['include_cop90'] = 'true'
 
     headers = {}
     if auth_token:
@@ -194,19 +196,20 @@ def process_image(fname,
     finally:
         files['file'].close()
 
-def process_image_file(server_url, 
-                       image_path, 
-                       engines, 
-                       llm_model, 
-                       prompt, 
-                       output_dir, 
-                       verbose, 
-                       auth_token=None, 
-                       ocr_only=False, 
-                       notebook_mode=False, 
-                       skip_label_collage=False, 
-                       include_wfo=False, 
-                       gemini_api_key=None
+def process_image_file(server_url,
+                       image_path,
+                       engines,
+                       llm_model,
+                       prompt,
+                       output_dir,
+                       verbose,
+                       auth_token=None,
+                       ocr_only=False,
+                       notebook_mode=False,
+                       skip_label_collage=False,
+                       include_wfo=False,
+                       gemini_api_key=None,
+                       include_cop90=True
                        ):
     """
     Process a single image file and save the results
@@ -234,7 +237,7 @@ def process_image_file(server_url,
 
     try:
         # Process the image
-        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key)
+        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, include_cop90)
 
         # Print summary of results if verbose is enabled
         if verbose:
@@ -293,20 +296,21 @@ def process_image_file(server_url,
         print(f"Error processing {image_path}: {e}")
         return None
 
-def process_images_parallel(server_url, 
-                            image_paths, 
-                            engines, 
-                            llm_model, 
-                            prompt, 
-                            output_dir, 
-                            verbose, 
-                            max_workers=4, 
-                            auth_token=None, 
-                            ocr_only=False, 
-                            notebook_mode=False, 
-                            skip_label_collage=False, 
+def process_images_parallel(server_url,
+                            image_paths,
+                            engines,
+                            llm_model,
+                            prompt,
+                            output_dir,
+                            verbose,
+                            max_workers=4,
+                            auth_token=None,
+                            ocr_only=False,
+                            notebook_mode=False,
+                            skip_label_collage=False,
                             include_wfo=False,
-                            gemini_api_key=None
+                            gemini_api_key=None,
+                            include_cop90=True
                             ):
     """
     Process multiple images in parallel
@@ -361,7 +365,8 @@ def process_images_parallel(server_url,
                 notebook_mode,
                 skip_label_collage,
                 include_wfo,
-                gemini_api_key
+                gemini_api_key,
+                include_cop90
             ): path for path in image_paths
         }
         
@@ -877,23 +882,24 @@ def verify_authentication(server_url, auth_token=None):
         print(f"ERROR: Could not connect to server: {str(e)}")
         return False
     
-def process_vouchers(server, 
-                     output_dir, 
-                     engines=["gemini-2.0-flash"],
-                     llm_model="gemini-2.0-flash",
-                     prompt="SLTPvM_full.yaml", 
-                     image=None, 
-                     directory=None, 
-                     file_list=None, 
-                     verbose=False, 
-                     save_to_xlsx=False, 
-                     max_workers=4, 
-                     auth_token=None, 
-                     ocr_only=False, 
-                     notebook_mode=False, 
+def process_vouchers(server,
+                     output_dir,
+                     engines=["gemini-3.1-flash-lite-preview"],
+                     llm_model="gemini-3.1-flash-lite-preview",
+                     prompt="SLTPvM_full.yaml",
+                     image=None,
+                     directory=None,
+                     file_list=None,
+                     verbose=False,
+                     save_to_xlsx=False,
+                     max_workers=4,
+                     auth_token=None,
+                     ocr_only=False,
+                     notebook_mode=False,
                      skip_label_collage=False,
                      include_wfo=False,
-                     gemini_api_key=None
+                     gemini_api_key=None,
+                     include_cop90=True
                      ):
     """
     Process voucher images through the VoucherVision API.
@@ -953,19 +959,20 @@ def process_vouchers(server,
         # Process based on the input type
         if image:
             # Single image (no need for parallelization)
-            result = process_image_file(server, 
-                                        image, 
-                                        engines, 
+            result = process_image_file(server,
+                                        image,
+                                        engines,
                                         llm_model,
-                                        prompt, 
-                                        output_dir, 
-                                        verbose, 
+                                        prompt,
+                                        output_dir,
+                                        verbose,
                                         auth_token,
                                         ocr_only,
                                         notebook_mode,
-                                        skip_label_collage, 
-                                        include_wfo, 
-                                        gemini_api_key)
+                                        skip_label_collage,
+                                        include_wfo,
+                                        gemini_api_key,
+                                        include_cop90)
             if result and save_to_xlsx:
                 all_results.append(result)
         
@@ -1000,12 +1007,12 @@ def process_vouchers(server,
             
             # Process images in parallel
             results = process_images_parallel(
-                server, 
-                image_files, 
-                engines, 
+                server,
+                image_files,
+                engines,
                 llm_model,
-                prompt, 
-                output_dir, 
+                prompt,
+                output_dir,
                 verbose,
                 max_workers,
                 auth_token,
@@ -1013,7 +1020,8 @@ def process_vouchers(server,
                 notebook_mode,
                 skip_label_collage,
                 include_wfo,
-                gemini_api_key
+                gemini_api_key,
+                include_cop90
             )
             
             if save_to_xlsx:
@@ -1031,12 +1039,12 @@ def process_vouchers(server,
             
             # Process files in parallel
             results = process_images_parallel(
-                server, 
-                file_paths, 
-                engines, 
+                server,
+                file_paths,
+                engines,
                 llm_model,
-                prompt, 
-                output_dir, 
+                prompt,
+                output_dir,
                 verbose,
                 max_workers,
                 auth_token,
@@ -1044,7 +1052,8 @@ def process_vouchers(server,
                 notebook_mode,
                 skip_label_collage,
                 include_wfo,
-                gemini_api_key
+                gemini_api_key,
+                include_cop90
             )
             
             if save_to_xlsx:
@@ -1074,18 +1083,19 @@ def process_vouchers(server,
         print(f"Total operation time: {int(minutes)} minutes and {int(seconds)} seconds")
         print(f"{'-' * N_SIZE}")
 
-def process_image_by_url(server_url, 
-                         image_url, 
-                         engines=None, 
-                         llm_model=None, 
-                         prompt=None, 
+def process_image_by_url(server_url,
+                         image_url,
+                         engines=None,
+                         llm_model=None,
+                         prompt=None,
                          verbose=False,
-                         auth_token=None, 
-                         ocr_only=False, 
-                         notebook_mode=False, 
-                         skip_label_collage=False, 
+                         auth_token=None,
+                         ocr_only=False,
+                         notebook_mode=False,
+                         skip_label_collage=False,
                          include_wfo=False,
-                         gemini_api_key=None
+                         gemini_api_key=None,
+                         include_cop90=True
                          ):
     """
     Process an image from a URL using the VoucherVision API server's process-url endpoint
@@ -1137,7 +1147,9 @@ def process_image_by_url(server_url,
         data['include_wfo'] = True
     if gemini_api_key:
         data['gemini_api_key'] = gemini_api_key
-        
+    if include_cop90:
+        data['include_cop90'] = True
+
     # Determine auth header type based on auth_token format
     headers = {
         'Content-Type': 'application/json'
@@ -1195,20 +1207,21 @@ def process_image_by_url(server_url,
         return None
 
 
-def process_urls_parallel(server_url, 
-                          image_urls, 
-                          engines, 
-                          llm_model, 
-                          prompt, 
-                          output_dir, 
-                          verbose, 
-                          max_workers=4, 
-                          auth_token=None, 
-                          ocr_only=False, 
-                          notebook_mode=False, 
-                          skip_label_collage=False, 
+def process_urls_parallel(server_url,
+                          image_urls,
+                          engines,
+                          llm_model,
+                          prompt,
+                          output_dir,
+                          verbose,
+                          max_workers=4,
+                          auth_token=None,
+                          ocr_only=False,
+                          notebook_mode=False,
+                          skip_label_collage=False,
                           include_wfo=False,
-                          gemini_api_key=None
+                          gemini_api_key=None,
+                          include_cop90=True
                           ):
     """
     Process multiple image URLs in parallel
@@ -1249,18 +1262,19 @@ def process_urls_parallel(server_url,
             filename = os.path.basename(output_file).split('.')[0]
             
             # Process the image URL
-            result = process_image_by_url(server_url, 
-                                          url, 
-                                          engines, 
-                                          llm_model, 
-                                          prompt, 
-                                          verbose, 
-                                          auth_token, 
-                                          ocr_only, 
-                                          notebook_mode, 
-                                          skip_label_collage, 
-                                          include_wfo, 
-                                          gemini_api_key
+            result = process_image_by_url(server_url,
+                                          url,
+                                          engines,
+                                          llm_model,
+                                          prompt,
+                                          verbose,
+                                          auth_token,
+                                          ocr_only,
+                                          notebook_mode,
+                                          skip_label_collage,
+                                          include_wfo,
+                                          gemini_api_key,
+                                          include_cop90
                                           )
             
             if result:
@@ -1303,19 +1317,20 @@ def process_urls_parallel(server_url,
     return results
 
 
-def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_model="gemini-2.0-flash",
-                        prompt="SLTPvM_full.yaml", 
-                        image_url=None, 
-                        url_list=None, 
-                        verbose=False, 
-                        save_to_xlsx=False, 
-                        max_workers=4, 
-                        auth_token=None, 
-                        ocr_only=False, 
-                        notebook_mode=False, 
-                        skip_label_collage=False, 
-                        include_wfo=False, 
-                        gemini_api_key=None):
+def process_vouchers_urls(server, output_dir, engines=["gemini-3.1-flash-lite-preview"], llm_model="gemini-3.1-flash-lite-preview",
+                        prompt="SLTPvM_full.yaml",
+                        image_url=None,
+                        url_list=None,
+                        verbose=False,
+                        save_to_xlsx=False,
+                        max_workers=4,
+                        auth_token=None,
+                        ocr_only=False,
+                        notebook_mode=False,
+                        skip_label_collage=False,
+                        include_wfo=False,
+                        gemini_api_key=None,
+                        include_cop90=True):
     """
     Process voucher images from URLs through the VoucherVision API.
     
@@ -1371,18 +1386,19 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
             filename = os.path.basename(output_file).split('.')[0]
             
             # Process the image URL
-            result = process_image_by_url(server, 
-                                          image_url, 
-                                          engines, 
-                                          llm_model, 
-                                          prompt, 
-                                          verbose, 
-                                          auth_token, 
-                                          ocr_only, 
-                                          notebook_mode, 
-                                          skip_label_collage, 
-                                          include_wfo, 
-                                          gemini_api_key
+            result = process_image_by_url(server,
+                                          image_url,
+                                          engines,
+                                          llm_model,
+                                          prompt,
+                                          verbose,
+                                          auth_token,
+                                          ocr_only,
+                                          notebook_mode,
+                                          skip_label_collage,
+                                          include_wfo,
+                                          gemini_api_key,
+                                          include_cop90
                                           )
             
             if result:
@@ -1412,12 +1428,12 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
             
             # Process URLs in parallel
             results = process_urls_parallel(
-                server, 
-                url_paths, 
-                engines, 
+                server,
+                url_paths,
+                engines,
                 llm_model,
-                prompt, 
-                output_dir, 
+                prompt,
+                output_dir,
                 verbose,
                 max_workers,
                 auth_token,
@@ -1425,7 +1441,8 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-2.0-flash"], llm_
                 notebook_mode,
                 skip_label_collage,
                 include_wfo,
-                gemini_api_key
+                gemini_api_key,
+                include_cop90
             )
             
             if save_to_xlsx:
@@ -1473,10 +1490,10 @@ def main():
     input_group.add_argument('--file-list',
                              help='Path to a file containing a list of image paths or URLs (one per line or XLSX)')
     
-    parser.add_argument('--engines', nargs='+', default=["gemini-2.0-flash"],
-                        help='OCR engine options to use (default: gemini-2.0-flash)')
-    parser.add_argument('--llm-model', default="gemini-2.0-flash",
-                        help='OCR engine options to use (default: gemini-2.0-flash)')
+    parser.add_argument('--engines', nargs='+', default=["gemini-3.1-flash-lite-preview"],
+                        help='OCR engine options to use (default: gemini-3.1-flash-lite-preview)')
+    parser.add_argument('--llm-model', default="gemini-3.1-flash-lite-preview",
+                        help='OCR engine options to use (default: gemini-3.1-flash-lite-preview)')
     parser.add_argument('--prompt', default="SLTPvM_full.yaml",
                         help='Custom prompt file to use (default: SLTPvM_full.yaml)')
     parser.add_argument('--output-dir', required=True,
@@ -1497,6 +1514,10 @@ def main():
                         help='Validate taxonomy against World Flora Online')
     parser.add_argument('--gemini-api-key', default=None,
                         help='(Optional) Provide your own Gemini API Key obtained from Google AI Studio')
+    parser.add_argument('--include-cop90', action='store_true', default=True,
+                        help='Add COP90 elevation data to results (enabled by default)')
+    parser.add_argument('--no-cop90', dest='include_cop90', action='store_false',
+                        help='Disable COP90 elevation data')
     
     args = parser.parse_args()
     
@@ -1518,7 +1539,8 @@ def main():
         notebook_mode=args.notebook_mode,
         skip_label_collage=args.skip_label_collage,
         include_wfo = args.include_wfo,
-        gemini_api_key = args.gemini_api_key
+        gemini_api_key = args.gemini_api_key,
+        include_cop90 = args.include_cop90
     )
 
 

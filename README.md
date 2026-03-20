@@ -13,14 +13,26 @@ This repository is designed for users who only need the client component without
 ## Information 
 VoucherVision is designed to transcribe museum specimen labels. Please see the [VoucherVision Github](https://github.com/Gene-Weaver/VoucherVision) for more information. 
 
-As of March 2025, the University of Michigan is allowing free access to VoucherVision. The API is hosted on-demand. It takes about 1 minute for the server to wake up, then subsequent calls are much faster. The API is parallelized and scalable, making this inference much faster than the regular VoucherVision deployment. The tradeoff is that you have less control over the transcription methods. VoucherVisionGO supports Google's LLM APIs for OCR and for parsing the unformatted text into JSON.  
- - "gemini-2.0-flash" 
- - "gemini-2.5-flash"
- - "gemini-2.5-pro"
- - "gemini-3.0-flash-preview"
- - "gemini-3.0-pro-preview"
+As of March 2025, the University of Michigan is allowing free access to VoucherVision. The API is hosted on-demand. It takes about 1 minute for the server to wake up, then subsequent calls are much faster. The API is parallelized and scalable, making this inference much faster than the regular VoucherVision deployment. The tradeoff is that you have less control over the transcription methods. VoucherVisionGO supports Google's LLM APIs for OCR and for parsing the unformatted text into JSON.
 
-If you want pure speed, use only "flash" models for both tasks. 
+## Available LLM Models
+
+> **Note:** Starting April 1, 2026, only the models marked **Supported** below will be available. Deprecated models may stop working before that date.
+
+| Model | Status | Notes |
+|-------|--------|-------|
+| `gemini-1.5-pro` | ⛔ Deprecated | No longer supported |
+| `gemini-2.0-flash` | ⛔ Deprecated | No longer supported |
+| `gemini-2.5-flash` | ⛔ Deprecated | No longer supported |
+| `gemini-2.5-pro` | ⛔ Deprecated | No longer supported |
+| `gemini-3-pro-preview` | ⛔ Deprecated | No longer supported |
+| `gemini-3.1-flash-lite-preview` | ✅ Supported | Fast, unlimited usage; **default** |
+| `gemini-3-flash-preview` | ✅ Supported | Fast with good quality |
+| `gemini-3.1-pro-preview` | ✅ Supported | Highest quality; subject to rate limits |
+
+For the most up-to-date list of supported models, refer to the [Google AI Gemini API documentation](https://ai.google.dev/gemini-api/docs/models)
+
+If you want pure speed, use only "flash" models for both tasks.
 
 If you want to transcribe different fields, reach out and I can help you develop a prompt or upload your existing prompt to make it available on the API. 
 
@@ -291,6 +303,7 @@ The path to your local output folder:
 * `--notebook-mode`: Run OCR only, skip the text label collage step, use the full image as input, and return OCR output formatted as Markdown. Useful for downstream document processing workflows.
 * `--skip-label-collage`: Skip the text label collage pre-processing step and send the full original image directly to OCR. Use this if your images are already cropped to the label or if the collage step produces poor results for your collection.
 * `--gemini-api-key`: (Optional) Provide your own Gemini API key obtained from [Google AI Studio](https://aistudio.google.com/). When provided, API calls to Gemini are billed to your own Google account rather than the shared server key.
+* `--include-cop90`: Add Copernicus GLO-90 elevation data to results. When enabled, if `decimalLatitude` and `decimalLongitude` are present in the formatted JSON, the response will include a supplemental COP90 elevation value (in meters). This does not replace any verbatim elevation data from the label — it is purely supplemental.
 
 ## View Available Prompts
 
@@ -786,16 +799,125 @@ curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process-
   }'
 ```
 
-## Available LLM Models
-You can use any Gemini model that supports vision capabilities:
+### Using Copernicus GLO-90 Elevation Data
 
-- `gemini-1.5-pro` — High quality but slower; will be deprecated soon
-- `gemini-2.0-flash` — Fast with good quality (default)
-- `gemini-2.5-flash` — Faster next-generation model with strong quality
-- `gemini-2.5-pro` — Highest quality parsing; supports tool use and geolocation
-- `gemini-3-pro-preview` — Latest preview model; cutting-edge quality
+The `--include-cop90` flag enriches results with elevation data from the Copernicus GLO-90 Digital Surface Model (90 m resolution), derived from the TanDEM-X mission (DLR/Airbus) and distributed by ESA via OpenTopography.
 
-For the most up-to-date list of supported models, refer to the [Google AI Gemini API documentation](https://ai.google.dev/gemini-api/docs/models)
+When enabled, if `decimalLatitude` and `decimalLongitude` are present in the formatted JSON, the response will include the COP90 elevation (in meters) for those coordinates. This is supplemental data — it does not replace any verbatim elevation transcribed from the specimen label.
+
+> Contains modified Copernicus data (2011–2015). © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018, provided under Copernicus by the European Union and ESA.
+
+#### From the Command Line (Options 2 & 3)
+
+**Single image with COP90 elevation:**
+```bash
+python VoucherVision.py --server https://vouchervision-go-738307415303.us-central1.run.app/
+  --image "./demo/images/MICH_16205594_Poaceae_Jouvea_pilosa.jpg"
+  --output-dir "./results/with_cop90"
+  --include-cop90
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+**Directory processing with COP90 elevation:**
+```bash
+python VoucherVision.py --server https://vouchervision-go-738307415303.us-central1.run.app/
+  --directory "./demo/images"
+  --output-dir "./results/bulk_cop90"
+  --include-cop90
+  --max-workers 4
+  --auth-token "your_auth_token"
+```
+
+**Combining with WFO validation and COP90 elevation:**
+```bash
+python VoucherVision.py --server https://vouchervision-go-738307415303.us-central1.run.app/
+  --image "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
+  --output-dir "./results/wfo_cop90"
+  --include-wfo
+  --include-cop90
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+#### From PyPi (Option 1)
+**Command line with PyPi installation:**
+```bash
+vouchervision --server https://vouchervision-go-738307415303.us-central1.run.app/
+  --image https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg
+  --output-dir ./output
+  --include-cop90
+  --verbose
+  --auth-token "your_auth_token"
+```
+
+**Programmatic usage with PyPi:**
+```python
+import os
+from VoucherVision import process_vouchers
+
+auth_token = os.environ.get("your_auth_token")
+
+process_vouchers(
+  server="https://vouchervision-go-738307415303.us-central1.run.app/",
+  output_dir="./output",
+  prompt="SLTPvM_default.yaml",
+  image="https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg",
+  include_cop90=True,  # Add COP90 elevation data
+  verbose=True,
+  save_to_xlsx=True,
+  auth_token=auth_token
+)
+```
+
+**Single image processing with COP90:**
+```python
+import os
+from client import process_image, ordereddict_to_json, get_output_filename
+
+auth_token = os.environ.get("your_auth_token")
+
+image_path = "https://swbiodiversity.org/imglib/seinet/sernec/EKY/31234100396/31234100396116.jpg"
+output_dir = "./output"
+output_file, _ = get_output_filename(image_path, output_dir)
+fname = os.path.basename(output_file).split(".")[0]
+
+result = process_image(
+  fname=fname,
+  server_url="https://vouchervision-go-738307415303.us-central1.run.app/",
+  image_path=image_path,
+  output_dir=output_dir,
+  verbose=True,
+  engines=["gemini-2.0-flash"],
+  prompt="SLTPvM_default.yaml",
+  include_cop90=True,  # Add COP90 elevation data
+  auth_token=auth_token
+)
+
+output_dict = ordereddict_to_json(result, output_type="dict")
+print("COP90 Elevation:", output_dict.get('COP90_info', 'No COP90 data'))
+```
+
+#### API Usage
+**Using form data:**
+```bash
+curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process" \
+  -H "Authorization: Bearer your_auth_token" \
+  -F "file=@image.jpg" \
+  -F "include_cop90=true"
+```
+
+**Using URL processing:**
+```bash
+curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process-url" \
+  -H "Authorization: Bearer your_auth_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_url": "https://example.com/specimen.jpg",
+    "include_cop90": true,
+    "prompt": "SLTPvM_default.yaml"
+  }'
+```
 
 ### Processing Large Batches with Parallel Workers
 For large datasets, you can adjust the number of parallel workers:
