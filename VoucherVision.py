@@ -82,7 +82,7 @@ def process_image(fname,
                   skip_label_collage=False,
                   include_wfo=False,
                   gemini_api_key=None,
-                  include_cop90=True
+                  use_cop90=True
                   ):
     """
     Process an image using the VoucherVision API server, now with support for multipart responses.
@@ -105,7 +105,7 @@ def process_image(fname,
             temp_file.write(response.content)
         
         try:
-            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, include_cop90)
+            return process_image(fname, server_url, temp_file_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, use_cop90)
         finally:
             os.remove(temp_file_path)
     
@@ -121,7 +121,7 @@ def process_image(fname,
     if skip_label_collage: data['skip_label_collage'] = 'true'
     if include_wfo: data['include_wfo'] = 'true'
     if gemini_api_key: data['gemini_api_key'] = gemini_api_key
-    if include_cop90: data['include_cop90'] = 'true'
+    if use_cop90: data['use_cop90'] = 'true'
 
     headers = {}
     if auth_token:
@@ -209,7 +209,7 @@ def process_image_file(server_url,
                        skip_label_collage=False,
                        include_wfo=False,
                        gemini_api_key=None,
-                       include_cop90=True
+                       use_cop90=True
                        ):
     """
     Process a single image file and save the results
@@ -237,7 +237,7 @@ def process_image_file(server_url,
 
     try:
         # Process the image
-        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, include_cop90)
+        results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, use_cop90)
 
         # Print summary of results if verbose is enabled
         if verbose:
@@ -310,7 +310,7 @@ def process_images_parallel(server_url,
                             skip_label_collage=False,
                             include_wfo=False,
                             gemini_api_key=None,
-                            include_cop90=True
+                            use_cop90=True
                             ):
     """
     Process multiple images in parallel
@@ -366,7 +366,7 @@ def process_images_parallel(server_url,
                 skip_label_collage,
                 include_wfo,
                 gemini_api_key,
-                include_cop90
+                use_cop90
             ): path for path in image_paths
         }
         
@@ -899,7 +899,7 @@ def process_vouchers(server,
                      skip_label_collage=False,
                      include_wfo=False,
                      gemini_api_key=None,
-                     include_cop90=True
+                     use_cop90=True
                      ):
     """
     Process voucher images through the VoucherVision API.
@@ -972,7 +972,7 @@ def process_vouchers(server,
                                         skip_label_collage,
                                         include_wfo,
                                         gemini_api_key,
-                                        include_cop90)
+                                        use_cop90)
             if result and save_to_xlsx:
                 all_results.append(result)
         
@@ -1021,7 +1021,7 @@ def process_vouchers(server,
                 skip_label_collage,
                 include_wfo,
                 gemini_api_key,
-                include_cop90
+                use_cop90
             )
             
             if save_to_xlsx:
@@ -1053,7 +1053,7 @@ def process_vouchers(server,
                 skip_label_collage,
                 include_wfo,
                 gemini_api_key,
-                include_cop90
+                use_cop90
             )
             
             if save_to_xlsx:
@@ -1095,7 +1095,7 @@ def process_image_by_url(server_url,
                          skip_label_collage=False,
                          include_wfo=False,
                          gemini_api_key=None,
-                         include_cop90=True
+                         use_cop90=True
                          ):
     """
     Process an image from a URL using the VoucherVision API server's process-url endpoint
@@ -1147,8 +1147,8 @@ def process_image_by_url(server_url,
         data['include_wfo'] = True
     if gemini_api_key:
         data['gemini_api_key'] = gemini_api_key
-    if include_cop90:
-        data['include_cop90'] = True
+    if use_cop90:
+        data['use_cop90'] = True
 
     # Determine auth header type based on auth_token format
     headers = {
@@ -1221,7 +1221,7 @@ def process_urls_parallel(server_url,
                           skip_label_collage=False,
                           include_wfo=False,
                           gemini_api_key=None,
-                          include_cop90=True
+                          use_cop90=True
                           ):
     """
     Process multiple image URLs in parallel
@@ -1274,7 +1274,7 @@ def process_urls_parallel(server_url,
                                           skip_label_collage,
                                           include_wfo,
                                           gemini_api_key,
-                                          include_cop90
+                                          use_cop90
                                           )
             
             if result:
@@ -1330,7 +1330,7 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-3.1-flash-lite-pr
                         skip_label_collage=False,
                         include_wfo=False,
                         gemini_api_key=None,
-                        include_cop90=True):
+                        use_cop90=True):
     """
     Process voucher images from URLs through the VoucherVision API.
     
@@ -1398,7 +1398,7 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-3.1-flash-lite-pr
                                           skip_label_collage,
                                           include_wfo,
                                           gemini_api_key,
-                                          include_cop90
+                                          use_cop90
                                           )
             
             if result:
@@ -1442,7 +1442,7 @@ def process_vouchers_urls(server, output_dir, engines=["gemini-3.1-flash-lite-pr
                 skip_label_collage,
                 include_wfo,
                 gemini_api_key,
-                include_cop90
+                use_cop90
             )
             
             if save_to_xlsx:
@@ -1514,9 +1514,9 @@ def main():
                         help='Validate taxonomy against World Flora Online')
     parser.add_argument('--gemini-api-key', default=None,
                         help='(Optional) Provide your own Gemini API Key obtained from Google AI Studio')
-    parser.add_argument('--include-cop90', action='store_true', default=True,
+    parser.add_argument('--use-cop90', action='store_true', default=True,
                         help='Add COP90 elevation data to results (enabled by default)')
-    parser.add_argument('--no-cop90', dest='include_cop90', action='store_false',
+    parser.add_argument('--no-cop90', dest='use_cop90', action='store_false',
                         help='Disable COP90 elevation data')
     
     args = parser.parse_args()
@@ -1540,7 +1540,7 @@ def main():
         skip_label_collage=args.skip_label_collage,
         include_wfo = args.include_wfo,
         gemini_api_key = args.gemini_api_key,
-        include_cop90 = args.include_cop90
+        use_cop90 = args.use_cop90
     )
 
 
