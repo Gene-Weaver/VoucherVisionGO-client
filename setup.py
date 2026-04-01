@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.48",  # "0.1.41" is transition away from client.py # "0.1.46" added cop90
+    version="0.1.49",  # "0.1.41" is transition away from client.py # "0.1.46" added cop90 # 0.1.49 added PyMuPDF to requirements
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",
@@ -37,6 +37,7 @@ setup(
         "pyyaml",   # for list_prompts.py
         "pandas",   # now required; used at import time in VoucherVision.py
         "openpyxl", # needed for pandas to write .xlsx cleanly
+        "PyMuPDF",  # PDF to image conversion
     ],
     extras_require={
         "analytics": ["pandas"],

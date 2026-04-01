@@ -4,3 +4,4 @@ termcolor
 tabulate
 tqdm
 requests-toolbelt
+PyMuPDF

@@ -14,6 +14,7 @@ from tabulate import tabulate
 from tqdm import tqdm
 from requests_toolbelt.multipart import decoder
 
+
 from url_name_parser import extract_filename_from_url
 
 __all__ = [
@@ -176,6 +177,21 @@ def process_image(fname,
             # Handle unexpected response types
             raise Exception(f"Unsupported response content type from server: {content_type}")
         
+        # Handle multi-page PDF responses
+        if 'pages' in results:
+            page_results = []
+            for page in results.get('pages', []):
+                if 'error' in page and 'formatted_json' not in page:
+                    print(f"  Page {page.get('filename', '?')} failed: {page.get('error')}")
+                    continue
+                if 'formatted_json' in page and isinstance(page['formatted_json'], str):
+                    try:
+                        page['formatted_json'] = json.loads(page['formatted_json'], object_pairs_hook=OrderedDict)
+                    except json.JSONDecodeError:
+                        pass
+                page_results.append(page)
+            return page_results
+
         # This final block remains unchanged
         if 'formatted_json' in results and isinstance(results['formatted_json'], str):
             try:
@@ -239,17 +255,47 @@ def process_image_file(server_url,
         # Process the image
         results = process_image(fname, server_url, image_path, output_dir, verbose, engines, llm_model, prompt, auth_token, ocr_only, notebook_mode, skip_label_collage, include_wfo, gemini_api_key, include_cop90)
 
+        # Handle multi-page PDF results (list of per-page dicts)
+        if isinstance(results, list):
+            if verbose:
+                print(f"PDF processed: {image_path} ({len(results)} pages)")
+            for page_result in results:
+                page_fname = page_result.get('filename', fname)
+                page_output = os.path.join(output_dir, f"{os.path.splitext(page_fname)[0]}.json")
+                with open(page_output, 'w') as f:
+                    json.dump(page_result, f, indent=2, sort_keys=False, cls=OrderedDictJSONEncoder)
+                if verbose:
+                    print(f"  Page results saved to: {page_output}")
+                # Save notebook markdown per page if applicable
+                if notebook_mode:
+                    formatted_md = page_result.get("formatted_md", "") or ""
+                    if formatted_md:
+                        md_text = formatted_md.strip()
+                        if md_text.startswith("```"):
+                            lines = md_text.splitlines()
+                            if lines and lines[0].startswith("```"):
+                                lines = lines[1:]
+                            if lines and lines[-1].strip() == "```":
+                                lines = lines[:-1]
+                            md_text = "\n".join(lines).rstrip() + "\n"
+                        page_md_file = os.path.join(output_dir, f"{os.path.splitext(page_fname)[0]}.md")
+                        with open(page_md_file, "w", encoding="utf-8") as f_md:
+                            f_md.write(md_text)
+                        if verbose:
+                            print(f"  Notebook markdown saved to: {page_md_file}")
+            return results
+
         # Print summary of results if verbose is enabled
         if verbose:
             print_results_summary(results, fname)
             print(f"Processed: {image_path}")
-        
+
         # Save the results - ensure we preserve order
         with open(output_file, 'w') as f:
-            # Use json.dump with an OrderedDict to preserve key order 
-            json.dump(results, f, indent=2, sort_keys=False, 
+            # Use json.dump with an OrderedDict to preserve key order
+            json.dump(results, f, indent=2, sort_keys=False,
                      cls=OrderedDictJSONEncoder)  # Use custom encoder
-        
+
         if verbose:
             print(f"Individual results saved to: {output_file}")
 
@@ -376,7 +422,11 @@ def process_images_parallel(server_url,
             try:
                 result = future.result()
                 if result:
-                    results.append(result)
+                    # PDF results come back as a list of per-page dicts
+                    if isinstance(result, list):
+                        results.extend(result)
+                    else:
+                        results.append(result)
             except Exception as e:
                 print(f"\nError processing {path}: {e}")
             finally:
@@ -881,7 +931,52 @@ def verify_authentication(server_url, auth_token=None):
     except Exception as e:
         print(f"ERROR: Could not connect to server: {str(e)}")
         return False
-    
+
+
+def convert_pdfs_to_images(file_paths, temp_dir, dpi=150):
+    """
+    Scan a list of file paths for PDFs and convert each page to a JPG.
+    Non-PDF files are returned unchanged. PDF pages are written to temp_dir.
+
+    Args:
+        file_paths (list): List of file paths (images and/or PDFs).
+        temp_dir (str): Directory to write converted page JPGs into.
+        dpi (int): Rendering resolution for PDF pages.
+
+    Returns:
+        list: New file path list with PDFs replaced by their per-page JPGs.
+    """
+    import fitz  # PyMuPDF - PDF to image conversion
+    output_paths = []
+    for path in file_paths:
+        if not path.lower().endswith('.pdf') or path.startswith(('http://', 'https://')):
+            output_paths.append(path)
+            continue
+
+        pdf_name = os.path.splitext(os.path.basename(path))[0]
+        try:
+            doc = fitz.open(path)
+            page_count = len(doc)
+            if page_count == 0:
+                print(f"WARNING: PDF has no pages, skipping: {path}")
+                doc.close()
+                continue
+
+            print(f"Converting PDF to {page_count} page images: {os.path.basename(path)}")
+            for page_num in range(page_count):
+                page = doc.load_page(page_num)
+                pix = page.get_pixmap(dpi=dpi)
+                page_filename = f"{pdf_name}__page_{page_num + 1:04d}.jpg"
+                page_path = os.path.join(temp_dir, page_filename)
+                pix.save(page_path)
+                output_paths.append(page_path)
+            doc.close()
+        except Exception as e:
+            print(f"ERROR: Failed to convert PDF '{path}': {e}")
+
+    return output_paths
+
+
 def process_vouchers(server,
                      output_dir,
                      engines=["gemini-3.1-flash-lite-preview"],
@@ -944,37 +1039,52 @@ def process_vouchers(server,
 
     # Start timing
     start_time = time.time()
-    
+
     # If in OCR-only mode, inform user
     if ocr_only:
         print("Running in OCR-only mode: Skipping VoucherVision JSON parsing")
     if include_wfo:
         print("Running in WFO Tool")
 
-    
+    # Temp directory for PDF page images (cleaned up in finally block)
+    pdf_temp_dir = tempfile.mkdtemp(prefix="vv_pdf_pages_")
+
     try:
         # To store all results if save-to-xlsx is enabled
         all_results = []
         
         # Process based on the input type
         if image:
-            # Single image (no need for parallelization)
-            result = process_image_file(server,
-                                        image,
-                                        engines,
-                                        llm_model,
-                                        prompt,
-                                        output_dir,
-                                        verbose,
-                                        auth_token,
-                                        ocr_only,
-                                        notebook_mode,
-                                        skip_label_collage,
-                                        include_wfo,
-                                        gemini_api_key,
-                                        include_cop90)
-            if result and save_to_xlsx:
-                all_results.append(result)
+            if image.lower().endswith('.pdf'):
+                # Single PDF: convert pages to JPGs locally, then process in parallel
+                page_paths = convert_pdfs_to_images([image], pdf_temp_dir)
+                if page_paths:
+                    results = process_images_parallel(
+                        server, page_paths, engines, llm_model, prompt,
+                        output_dir, verbose, max_workers, auth_token,
+                        ocr_only, notebook_mode, skip_label_collage,
+                        include_wfo, gemini_api_key, include_cop90
+                    )
+                    if save_to_xlsx:
+                        all_results.extend(results)
+            else:
+                # Single image (no need for parallelization)
+                result = process_image_file(server,
+                                            image,
+                                            engines,
+                                            llm_model,
+                                            prompt,
+                                            output_dir,
+                                            verbose,
+                                            auth_token,
+                                            ocr_only,
+                                            notebook_mode,
+                                            skip_label_collage,
+                                            include_wfo,
+                                            gemini_api_key,
+                                            include_cop90)
+                if result and save_to_xlsx:
+                    all_results.append(result)
         
         elif directory:
             # Directory of images - use parallel processing
@@ -982,7 +1092,7 @@ def process_vouchers(server,
                 raise ValueError(f"Directory not found: {directory}")
             
             # Get all image files in the directory
-            image_extensions = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp', '.gif']
+            image_extensions = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp', '.gif', '.pdf']
             image_files = []
 
             for ext in image_extensions:
@@ -999,12 +1109,15 @@ def process_vouchers(server,
                     unique_files.append(file)
 
             image_files = unique_files
-            print(f"Found {len(image_files)} unique image files to process")
 
             if not image_files:
                 print(f"No image files found in {directory}")
                 return None
-            
+
+            # Convert any PDFs to page JPGs locally so they can be parallelized
+            image_files = convert_pdfs_to_images(image_files, pdf_temp_dir)
+            print(f"Processing {len(image_files)} total images (including PDF pages)")
+
             # Process images in parallel
             results = process_images_parallel(
                 server,
@@ -1030,13 +1143,15 @@ def process_vouchers(server,
         elif file_list:
             # List of image paths or URLs from a file - use parallel processing
             file_paths = read_file_list(file_list)
-            
+
             if not file_paths:
                 print(f"No file paths found in {file_list}")
                 return None
-            
-            print(f"Found {len(file_paths)} paths to process")
-            
+
+            # Convert any local PDFs to page JPGs (URLs are left as-is)
+            file_paths = convert_pdfs_to_images(file_paths, pdf_temp_dir)
+            print(f"Processing {len(file_paths)} total files (including PDF pages)")
+
             # Process files in parallel
             results = process_images_parallel(
                 server,
@@ -1075,6 +1190,13 @@ def process_vouchers(server,
             raise
 
     finally:
+        # Clean up temp directory used for PDF page images
+        import shutil
+        try:
+            shutil.rmtree(pdf_temp_dir, ignore_errors=True)
+        except Exception:
+            pass
+
         # End timing and report
         end_time = time.time()
         elapsed_seconds = end_time - start_time
