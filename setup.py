@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vouchervision-go-client",
-    version="0.1.49",  # "0.1.41" is transition away from client.py # "0.1.46" added cop90 # 0.1.49 added PyMuPDF to requirements
+    version="0.1.50",  # "0.1.41" is transition away from client.py # "0.1.46" added cop90 # 0.1.49 added PyMuPDF to requirements
     author="Will",
     author_email="willwe@umich.edu",
     description="Client for VoucherVisionGO API",

@@ -122,7 +122,7 @@ def process_image(fname,
     if skip_label_collage: data['skip_label_collage'] = 'true'
     if include_wfo: data['include_wfo'] = 'true'
     if gemini_api_key: data['gemini_api_key'] = gemini_api_key
-    if include_cop90: data['use_cop90'] = 'true'
+    if include_cop90: data['include_cop90'] = 'true'
 
     headers = {}
     if auth_token:
@@ -1270,7 +1270,7 @@ def process_image_by_url(server_url,
     if gemini_api_key:
         data['gemini_api_key'] = gemini_api_key
     if include_cop90:
-        data['use_cop90'] = True
+        data['include_cop90'] = 'true'
 
     # Determine auth header type based on auth_token format
     headers = {

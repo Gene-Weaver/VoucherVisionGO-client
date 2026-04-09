@@ -904,7 +904,7 @@ print("COP90 Elevation:", output_dict.get('COP90_info', 'No COP90 data'))
 curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process" \
   -H "Authorization: Bearer your_auth_token" \
   -F "file=@image.jpg" \
-  -F "use_cop90=true"
+  -F "include_cop90=true"
 ```
 
 **Using URL processing:**
@@ -914,7 +914,7 @@ curl -X POST "https://vouchervision-go-738307415303.us-central1.run.app/process-
   -H "Content-Type: application/json" \
   -d '{
     "image_url": "https://example.com/specimen.jpg",
-    "use_cop90": true,
+    "include_cop90": true,
     "prompt": "SLTPvM_default.yaml"
   }'
 ```
